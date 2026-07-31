@@ -1,7 +1,7 @@
 import React from "react"
 import { useState} from "react"
 import "./Signup.css"
-const Signup = ({Signupclick}) => {
+const Signup = ({Signupclick,setLoggedIn}) => {
     const [ShowLogin,setShowLogin]=useState(false);
     const [SignupData,setSignupData]=useState({
         name:"",
@@ -52,7 +52,7 @@ const Signup = ({Signupclick}) => {
         }
         const passwordRegex=/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(password)) {
-            setErrors(prev=>( {...prev,password:"password must be at least 8 characters and must contain at least one digit (0-9) and one letter (a-z, A-Z)"}))
+            if(!ShowLogin)setErrors(prev=>( {...prev,password:"password must be at least 8 characters and must contain at least one digit (0-9) and one letter (a-z, A-Z)"}))
         }
         if(!ShowLogin){
             // sign up:
@@ -64,8 +64,8 @@ const Signup = ({Signupclick}) => {
                 setErrors(prev=>( {...prev,name:"name must have at least 2 characters"}))
                 return;
             }
-            const valid=true;
-            // send data to backend and see if account doesn't already exist and say valid and move to login page
+            const valid=false;
+            // send data to backend and see if account doesn"t already exist and say valid and move to login page
             try{
                 const response = await fetch("http://localhost:5000/signup", {
                     method: "POST",
@@ -107,6 +107,9 @@ const Signup = ({Signupclick}) => {
         else{
             // log in:
             // send data to backend and check if valid
+            // 
+            setLoggedIn(true);
+            Signupclick();
             try{
                 const response = await fetch("http://localhost:5000/login", {
                     method: "POST",
@@ -123,7 +126,7 @@ const Signup = ({Signupclick}) => {
 
                 if (response.ok) {
                     console.log("Logged in!");
-                    // store token if you're using JWT
+                    // store token if you"re using JWT
                     // localStorage.setItem("token", data.token);
                     // close popup
                     // navigate("/")
@@ -141,7 +144,10 @@ const Signup = ({Signupclick}) => {
             }
             //
             const valid=false;
-            if(valid){}
+            if(valid){
+                setLoggedIn(true);
+                Signupclick();
+            }
             else{
                 setErrors(prev=>({...prev,submit:"invalid email or password"}))
             }
@@ -173,7 +179,7 @@ const Signup = ({Signupclick}) => {
                         {/* confirm password */}
                         <button className="authentication-submit" type="submit">Create account</button>
                         <p className="authentication-error">{Errors.submit}</p>
-                    <p className="authentication-footer">have an account? <button className="authentication-link" type="button" onClick={ShowLoginClicked}>log in</button></p> 
+                    <p className="authentication-footer">Have an account? <button className="authentication-link" type="button" onClick={ShowLoginClicked}>log in</button></p> 
                 </div>
             }
             {
@@ -192,7 +198,7 @@ const Signup = ({Signupclick}) => {
                         
                         <button className="authentication-submit" type="submit">Log in</button>
                         <p className="authentication-error">{Errors.submit}</p>
-                    <p className="authentication-footer">have an account? <button className="authentication-link" type="button" onClick={ShowLoginClicked}>sign up</button></p>
+                    <p className="authentication-footer">Don't have an account? <button className="authentication-link" type="button" onClick={ShowLoginClicked}>sign up</button></p>
                 </div>
                 }
             
