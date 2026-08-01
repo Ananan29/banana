@@ -1,9 +1,11 @@
 import React from "react"
 import Navbar from "../../components/Navbar/Navbar.jsx"
-const Library = () => {
+const Library = ({LoggedIn}) => {
   return (
     <div>
-      Library</div>
+      Library
+      {!LoggedIn && <p>log in to access features</p>}
+    </div>
   )
 }
 
