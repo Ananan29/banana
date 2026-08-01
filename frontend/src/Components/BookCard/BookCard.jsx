@@ -1,9 +1,9 @@
 import React from "react";
 import {useNavigate} from "react-router-dom";
 import "./BookCard.css";
-const BookCard = ({BookDetails}) => {
+const BookCard = ({BookDetails, Source}) => {
     const navigate=useNavigate();
-    const OpenBookPage=()=>(navigate("/BookPage/"+BookDetails.bookId))
+    const OpenBookPage=()=>(navigate(`/${Source}/${BookDetails.bookId}`))
   return (
     <div>
         <div className="BookCard" onClick={OpenBookPage}>

@@ -13,9 +13,10 @@ import tempbookPic11 from "./../../assets/bookPic11.jpg";
 import tempbookPic13 from "./../../assets/bookPic13.jpg";
 import tempbookPic14 from "./../../assets/bookPic14.jpg";
 import "./BookPage.css";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 const BookPage = () => {
-    const {BookId}=useParams();
+    const {BookId,Source}=useParams();
+    const navigate=useNavigate();
     // these details will be called from api
     const tempBookDetails=[
         {
@@ -271,12 +272,17 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
             language: "English"
         },
     ];
+    const GoBack=()=>{
+        navigate(`/${Source}`);
+    }
     const book=tempBookDetails.find(x=>x.bookId===Number(BookId));
     console.log(book.author);
   return (
     <div>
         <div className="book-page">
+            {/* <div className="book-wrapper"> */}
         <div className="book-container">
+            <button className="back-button" onClick={GoBack}>{"﹤"}</button>
 
             <div className="book-left">
                 <img
@@ -335,11 +341,11 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
                     </div>
 
                 </div>
-
+                </div>
             </div>
 
         </div>
-    </div>
+    {/* </div> */}
     </div>
   )
 }

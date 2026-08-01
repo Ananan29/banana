@@ -164,7 +164,7 @@ const Discover = () => {
         <div className="books-scroll-cards" ref={scrollRef} onWheel={handleWheel}>
           {
             BooksDetails.map(
-              bookdetails=><BookCard key={bookdetails.bookId} BookDetails={bookdetails}/>
+              bookdetails=><BookCard key={bookdetails.bookId} BookDetails={bookdetails} Source="discover"/>
             )
           }
         </div>
