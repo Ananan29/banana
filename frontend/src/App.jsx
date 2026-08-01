@@ -8,24 +8,26 @@ import Navbar from "./components/Navbar/Navbar.jsx";
 import Wishlist from "./pages/Wishlist/Wishlist.jsx";
 import Cart from "./pages/Cart/Cart.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
+import BookPage from "./Components/BookPage/BookPage.jsx";
 
 const App = () => {
-  const [showSignup, setShowSignup] = useState(false);
-  const onSignupClick=()=>{
-    setShowSignup(prev=>!prev);
+  const [ShowAuth, setShowAuth] = useState(false);
+  const onShowAuth=()=>{
+    setShowAuth(prev=>!prev);
   }
   const [LoggedIn, setLoggedIn] = useState(false);
   return (
     <>
-      <Navbar Signupclick={onSignupClick} LoggedIn={LoggedIn}/>
-      {showSignup && <Signup Signupclick={onSignupClick} setLoggedIn={setLoggedIn}/>}
+      <Navbar ShowAuth={onShowAuth} LoggedIn={LoggedIn}/>
+      {ShowAuth && <Signup ShowAuth={onShowAuth} setLoggedIn={setLoggedIn}/>}
       <Routes>
         <Route path="/" element={<Discover />} />
         <Route path="/discover" element={<Discover />} />
-        <Route path="/library" element={<Library />} />
+        <Route path="/library" element={<Library LoggedIn={LoggedIn}/>} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<Profile LoggedIn={LoggedIn} setLoggedIn={setLoggedIn}/>} />
+        <Route path="/bookpage/:BookId" element={<BookPage/>}/>
       </Routes>
     </>
   )
