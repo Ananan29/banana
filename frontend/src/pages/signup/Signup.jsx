@@ -1,8 +1,8 @@
 import React from "react"
 import { useState} from "react"
 import "./Signup.css"
-const Signup = ({Signupclick,setLoggedIn}) => {
-    const [ShowLogin,setShowLogin]=useState(false);
+const Signup = ({ShowAuth,setLoggedIn}) => {
+    const [ShowLogin,setShowLogin]=useState(true);
     const [SignupData,setSignupData]=useState({
         name:"",
         email:"",
@@ -34,6 +34,7 @@ const Signup = ({Signupclick,setLoggedIn}) => {
         const name=SignupData.name.trim();
         const email=SignupData.email.trim();
         const password=SignupData.password;
+        let hasError=false;
         setErrors({
             name:"",
             email:"",
@@ -41,29 +42,38 @@ const Signup = ({Signupclick,setLoggedIn}) => {
             submit:""
         });
         if (email === "") {
-            setErrors(prev=>({...prev,email:"please enter email"}))
+            setErrors(prev=>({...prev,email:"please enter email"}));
+            hasError=true;
         }
         const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if(!emailRegex.test(email)){
-            setErrors(prev=>( {...prev,email:"please enter a valid email"}))
+            setErrors(prev=>( {...prev,email:"please enter a valid email"}));
+            hasError=true;
         }
         if (password === "") {
-            setErrors(prev=>( {...prev,password:"password is required"}))
+            setErrors(prev=>( {...prev,password:"password is required"}));
+            hasError=true;
         }
-        const passwordRegex=/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
+        const passwordRegex=/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(password)) {
-            if(!ShowLogin)setErrors(prev=>( {...prev,password:"password must be at least 8 characters and must contain at least one digit (0-9) and one letter (a-z, A-Z)"}))
+            if(!ShowLogin)setErrors(prev=>( {...prev,password:"password must be at least 8 characters and must contain at least one digit (0-9), a lower case (a-z) and a upper case letter (A-Z)"}));
+            hasError=true;
         }
         if(!ShowLogin){
             // sign up:
             if (name === "") {
-                setErrors(prev=>( {...prev,name:"please enter name"}))
-                return;
+                setErrors(prev=>( {...prev,name:"please enter name"}));
+                hasError=true;
             }
-            if (name.length < 2) {
-                setErrors(prev=>( {...prev,name:"name must have at least 2 characters"}))
-                return;
+            else if (name.length < 2) {
+                setErrors(prev=>( {...prev,name:"name must have at least 2 characters"}));
+                hasError=true;
             }
+            else if (name.length > 50) {
+                setErrors(prev=>( {...prev,name:"name must have less than 50 characters"}));
+                hasError=true;
+            }
+            if(hasError)return;
             const valid=false;
             // send data to backend and see if account doesn"t already exist and say valid and move to login page
             try{
@@ -109,7 +119,8 @@ const Signup = ({Signupclick,setLoggedIn}) => {
             // send data to backend and check if valid
             // 
             setLoggedIn(true);
-            Signupclick();
+            if(hasError)return;
+            ShowAuth();
             try{
                 const response = await fetch("http://localhost:5000/login", {
                     method: "POST",
@@ -146,7 +157,7 @@ const Signup = ({Signupclick,setLoggedIn}) => {
             const valid=false;
             if(valid){
                 setLoggedIn(true);
-                Signupclick();
+                ShowAuth();
             }
             else{
                 setErrors(prev=>({...prev,submit:"invalid email or password"}))
@@ -157,7 +168,7 @@ const Signup = ({Signupclick,setLoggedIn}) => {
     <>
     <div className="authentication-page">
         <div className="authentication-box">
-        <button className="cross-button" onClick={Signupclick}>×</button>
+        <button className="cross-button" onClick={ShowAuth}>×</button>
             <form noValidate onSubmit={formSubmitted}>
             {
                 !ShowLogin &&
