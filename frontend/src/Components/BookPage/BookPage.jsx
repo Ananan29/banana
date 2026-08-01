@@ -14,7 +14,7 @@ import tempbookPic13 from "./../../assets/bookPic13.jpg";
 import tempbookPic14 from "./../../assets/bookPic14.jpg";
 import "./BookPage.css";
 import { useParams, useNavigate } from "react-router-dom";
-const BookPage = () => {
+const BookPage = ({LoggedIn, onShowAuth}) => {
     const {BookId,Source}=useParams();
     const navigate=useNavigate();
     // these details will be called from api
@@ -277,6 +277,32 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     }
     const book=tempBookDetails.find(x=>x.bookId===Number(BookId));
     console.log(book.author);
+    const BuyClicked=()=>{
+        if(!LoggedIn)onShowAuth();
+        else{
+            let existingBooks=localStorage.getItem("BooksInCart");
+            let buyBooks=JSON.parse(existingBooks);
+            if(buyBooks===null)buyBooks=[];
+            if (!buyBooks.includes(BookId)) {
+                buyBooks.push(BookId);
+                localStorage.setItem("BooksInCart", JSON.stringify(buyBooks));
+            }
+            else console.log("book already in cart");
+        }
+    }
+    const AddToCartClicked=()=>{
+        if(!LoggedIn)onShowAuth();
+        else{
+            const existingBooks=localStorage.getItem("BooksInWishlist");
+            let wishlistBooks=JSON.parse(existingBooks);
+            if(wishlistBooks===null)wishlistBooks=[];
+            if(!wishlistBooks.includes(BookId)){
+                wishlistBooks.push(BookId);
+                localStorage.setItem("BooksInWishlist", JSON.stringify(wishlistBooks));
+            }
+            else console.log("book already in wishlist");
+        }
+    }
   return (
     <div>
         <div className="book-page">
@@ -291,11 +317,11 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
                     className="book-cover"
                 />
 
-                <button className="buy-btn">
+                <button className="buy-btn" onClick={BuyClicked}>
                     Buy ₹6.99
                 </button>
 
-                <button className="wishlist-btn">
+                <button className="wishlist-btn" onClick={AddToCartClicked}>
                     Wishlist
                 </button>
             </div>

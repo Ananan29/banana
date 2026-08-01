@@ -27,7 +27,7 @@ const App = () => {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/profile" element={<Profile LoggedIn={LoggedIn} setLoggedIn={setLoggedIn}/>} />
-        <Route path="/:Source/:BookId" element={<BookPage/>}/>
+        <Route path="/:Source/:BookId" element={<BookPage LoggedIn={LoggedIn} onShowAuth={onShowAuth}/>}/>
       </Routes>
     </>
   )

@@ -119,8 +119,8 @@ const Signup = ({ShowAuth,setLoggedIn}) => {
             // send data to backend and check if valid
             // 
             setLoggedIn(true);
-            if(hasError)return;
             ShowAuth();
+            if(hasError)return;
             try{
                 const response = await fetch("http://localhost:5000/login", {
                     method: "POST",
