@@ -1,8 +1,20 @@
 import React from "react"
-
-const Profile = () => {
+import { useNavigate } from "react-router-dom";
+const Profile = ({LoggedIn,setLoggedIn}) => {
+  const navigate = useNavigate();
+  const logOutClicked=()=>{
+    setLoggedIn(false);
+    navigate("/");
+  }
   return (
-    <div>Profile</div>
+    <>
+      Profile
+      {!LoggedIn?(
+        <p>log in to access this feauture</p>
+      ):(
+        <button onClick={logOutClicked}>Log out</button>
+      )}
+    </>
   )
 }
 
