@@ -21,7 +21,7 @@ const Cart = ({LoggedIn}) => {
           wishlistBooks.push(BookId);
           localStorage.setItem("BooksInWishlist", JSON.stringify(wishlistBooks));
       }
-      // RemoveBook(BookId);
+      RemoveBook(BookId);
     }
     const ProceedToPayment=()=>{}
   return (
