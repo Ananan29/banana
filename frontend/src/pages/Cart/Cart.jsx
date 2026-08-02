@@ -32,7 +32,6 @@ const Cart = ({LoggedIn}) => {
         <div className="cart">
           {
             CartBooks.map(cartBooks=>{
-              console.log(cartBooks);
               const currBook=BookDetails.find(bookDetails=>bookDetails.bookId===Number(cartBooks));
               return(
                 <div key={cartBooks} className="buy-book-card">
