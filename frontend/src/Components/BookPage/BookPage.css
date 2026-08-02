@@ -180,3 +180,46 @@
 .back-button:active {
     transform: scale(0.96);
 }
+
+.book-buy-wishlist-buttons {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.book-buy-wishlist-buttons .buy-btn,
+.book-buy-wishlist-buttons .wishlist-btn {
+    width: 100%;
+
+    padding: 14px 0;
+
+    border-radius: 999px;
+
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.book-buy-wishlist-buttons .buy-btn {
+    border: none;
+    background: #7c3aed;
+    color: white;
+}
+
+.book-buy-wishlist-buttons .buy-btn:hover {
+    background: #6d28d9;
+}
+
+.book-buy-wishlist-buttons .wishlist-btn {
+    background: white;
+    border: 2px solid #ddd;
+}
+
+.book-buy-wishlist-buttons .wishlist-btn:hover {
+    background: #f5f5f5;
+}

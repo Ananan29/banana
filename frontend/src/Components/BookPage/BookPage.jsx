@@ -1,9 +1,10 @@
-import React from "react";
+import React,{ useState } from "react";
 import "./BookPage.css";
 import { useParams, useNavigate } from "react-router-dom";
 import BookDetails from "./../../data/books";
 const BookPage = ({LoggedIn, onShowAuth}) => {
     const {BookId,Source}=useParams();
+    const [OwnedBookIds, setOwnedBookIds] = useState(JSON.parse(localStorage.getItem("ownedBooks"))||[]);
     const navigate=useNavigate();
     const GoBack=()=>{
         navigate(`/${Source}`);
@@ -49,14 +50,21 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
                     alt={book.bookName}
                     className="book-cover"
                 />
+                {
+                    OwnedBookIds.find((ownedbooksid)=>Number(ownedbooksid)===(BookId))?(
+                        <button className="buy-btn">Open Book</button>
+                    ):(
+                        <div className="book-buy-wishlist-buttons">
+                            <button className="buy-btn" onClick={BuyClicked}>
+                                Buy {book.bookPrice}
+                            </button>
+                            <button className="wishlist-btn" onClick={WishlistClicked}>
+                                Wishlist
+                            </button>
+                        </div>
+                    )
+                }
 
-                <button className="buy-btn" onClick={BuyClicked}>
-                    Buy {book.bookPrice}
-                </button>
-
-                <button className="wishlist-btn" onClick={WishlistClicked}>
-                    Wishlist
-                </button>
             </div>
 
             <div className="book-right">
