@@ -1,10 +1,14 @@
-import React,{ useState } from "react";
+import React,{ useState, useEffect } from "react";
 import "./BookPage.css";
 import { useParams, useNavigate } from "react-router-dom";
 import BookDetails from "./../../data/books";
 const BookPage = ({LoggedIn, onShowAuth}) => {
     const {BookId,Source}=useParams();
     const [OwnedBookIds, setOwnedBookIds] = useState(JSON.parse(localStorage.getItem("ownedBooks"))||[]);
+    const [BooksInCart, setBooksInCart] = useState(JSON.parse(localStorage.getItem("BooksInCart"))||[]);
+    const [BooksInWishlist, setBooksInWishlist] = useState(JSON.parse(localStorage.getItem("BooksInWishlist"))||[]);
+    const [BookInCart, setBookInCart] = useState(BooksInCart.find((bookincart)=>Number(bookincart)===Number(BookId)));
+    const [BookInWishlist,setBookInWishlist]=useState(BooksInWishlist.find((bookinwishlist)=>Number(bookinwishlist)===Number(BookId)));
     const navigate=useNavigate();
     const GoBack=()=>{
         navigate(`/${Source}`);
@@ -22,6 +26,7 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
                 localStorage.setItem("BooksInCart", JSON.stringify(buyBooks));
             }
             else console.log("book already in cart");
+            window.location.reload();
         }
     }
     const WishlistClicked=()=>{
@@ -35,7 +40,14 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
                 localStorage.setItem("BooksInWishlist", JSON.stringify(wishlistBooks));
             }
             else console.log("book already in wishlist");
+            window.location.reload();
         }
+    }
+    const GoToCart=()=>{
+        navigate("/cart");
+    }
+    const GoToWishlist=()=>{
+        navigate("/wishlist");
     }
   return (
     <div>
@@ -51,17 +63,34 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
                     className="book-cover"
                 />
                 {
-                    OwnedBookIds.find((ownedbooksid)=>Number(ownedbooksid)===(BookId))?(
+                    OwnedBookIds.find((ownedbooksid)=>Number(ownedbooksid)===Number(BookId))?(
                         <button className="buy-btn">Open Book</button>
                     ):(
-                        <div className="book-buy-wishlist-buttons">
-                            <button className="buy-btn" onClick={BuyClicked}>
-                                Buy {book.bookPrice}
-                            </button>
-                            <button className="wishlist-btn" onClick={WishlistClicked}>
-                                Wishlist
-                            </button>
-                        </div>
+                        
+                            BookInCart?(<div className="book-buy-wishlist-buttons">
+                                <button className="go-to-cart-btn" onClick={GoToCart}>
+                                    Go To Cart
+                                </button>
+                                </div>
+                            ):(
+                                <div className="book-buy-wishlist-buttons">
+                                    <button className="buy-btn" onClick={BuyClicked}>
+                                        Buy ${book.bookPrice}
+                                    </button>
+                                    {
+                                        BookInWishlist?(
+                                            <button className="wishlist-btn" onClick={GoToWishlist}>
+                                                Go To Wishlist
+                                            </button>
+                                        ):(
+                                            <button className="wishlist-btn" onClick={WishlistClicked}>
+                                                Add To Wishlist
+                                            </button>
+                                        )
+                                    }
+                                </div>
+                            )
+                        
                     )
                 }
 

@@ -223,3 +223,24 @@
 .book-buy-wishlist-buttons .wishlist-btn:hover {
     background: #f5f5f5;
 }
+.go-to-cart-btn{
+    width: 100%;
+
+    padding: 14px 0;
+    /* margin-top:3px; */
+    border-radius: 999px;
+
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: .2s;
+    border: none;
+    background: #7c3aed;
+    color: white;
+
+}
+.go-to-cart-btn:hover{
+    background: #6d28d9;
+}

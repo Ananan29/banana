@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 const Cart = ({LoggedIn}) => {
     const [CartBooks, setCartBooks] = useState(JSON.parse(localStorage.getItem("BooksInCart")))||[];
     const [TotalPrice, setTotalPrice] = useState(0);
+    const navigate=useNavigate();
     useEffect(()=>{
       let totalprice=0;
       for(let i=0;i<CartBooks.length;i++){
@@ -13,7 +14,6 @@ const Cart = ({LoggedIn}) => {
       }
       setTotalPrice(totalprice);
     },[]);
-    const navigate=useNavigate();
     const RemoveBook=(BookId)=>{
       let books=CartBooks;
       books=books.filter(bookId=>bookId!==BookId);
@@ -43,7 +43,7 @@ const Cart = ({LoggedIn}) => {
       }
       localStorage.setItem("ownedBooks",JSON.stringify(topurchase));
       localStorage.setItem("BooksInCart",JSON.stringify([]));
-      window.location.reload();
+      navigate("/library");
     }
   return (
     <div>Cart
