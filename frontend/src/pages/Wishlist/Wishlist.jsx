@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react";
 import BookDetails from "./../../data/books.js";
+import BookCard from "./../../Components/BookCard/BookCard.jsx";
+import "./Wishlist.css";
 const Wishlist = ({LoggedIn}) => {
     const [WishlistBooks, setWishlistBooks] = useState(JSON.parse(localStorage.getItem("BooksInWishlist")));
     useEffect(()=>{
@@ -23,16 +25,19 @@ const Wishlist = ({LoggedIn}) => {
       RemoveBook(BookId);
     }
   return (
-    <div>Wishlist
+    <div>
        {!LoggedIn?(
         <p>log in to access this feauture</p>
       ):(
         <div className="wishlist-page">
           {
             WishlistBooks.map(wishlistBooks=>{
+              const currBook=BookDetails.find(bookDetails=>bookDetails.bookId===Number(wishlistBooks));
+              console.log(currBook?.bookId);
               return (
-                <div className="wishlist-book-card">
-                  <p>{wishlistBooks}</p>
+                <div key={wishlistBooks} className="wishlist-book-card">
+                  <button className="wishlist-button" onClick={RemoveBook}>{"<3"}</button>
+                  <BookCard BookId={currBook?.bookId} Source="wishlist"/>
                 </div>
               )
             })

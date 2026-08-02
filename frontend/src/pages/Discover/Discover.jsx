@@ -59,7 +59,7 @@ const Discover = () => {
         <div className="books-scroll-cards" ref={scrollRef} onWheel={handleWheel}>
           {
             BooksDetails.map(
-              bookdetails=><BookCard key={bookdetails.bookId} BookDetails={bookdetails} Source="discover"/>
+              bookdetails=><BookCard key={bookdetails.bookId} BookId={bookdetails.bookId} Source="discover"/>
             )
           }
         </div>
