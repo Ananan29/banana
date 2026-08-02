@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./Cart.css";
 import BookDetails from "./../../data/books.js";
+import { useNavigate } from "react-router-dom";
 const Cart = ({LoggedIn}) => {
     const [CartBooks, setCartBooks] = useState(JSON.parse(localStorage.getItem("BooksInCart")));
-    useEffect(()=>{
-      console.log(CartBooks);
-    },[]);
+    const navigate=useNavigate();
     const RemoveBook=(BookId)=>{
       let books=CartBooks;
       books=books.filter(bookId=>bookId!==BookId);
@@ -23,6 +22,9 @@ const Cart = ({LoggedIn}) => {
       }
       RemoveBook(BookId);
     }
+    const OpenBookPage=(BookId)=>{
+      navigate(`/cart/${BookId}`);
+    }
     const ProceedToPayment=()=>{}
   return (
     <div>Cart
@@ -31,17 +33,17 @@ const Cart = ({LoggedIn}) => {
       ):(
         <div className="cart">
           {
-            CartBooks.map(cartBooks=>{
-              const currBook=BookDetails.find(bookDetails=>bookDetails.bookId===Number(cartBooks));
+            CartBooks.map(bookId=>{
+              const currBook=BookDetails.find(bookDetails=>bookDetails.bookId===Number(bookId));
               return(
-                <div key={cartBooks} className="buy-book-card">
+                <div key={bookId} className="buy-book-card">
                   <img className="cart-book-image" src={currBook?.pic}/>
-                  <p className="cart-book-name">{currBook?.bookName}</p>
+                  <p className="cart-book-name" onClick={()=>OpenBookPage(bookId)}>{currBook?.bookName}</p>
                   <p className="cart-book-author">{currBook?.author}</p>
                   <p className="cart-book-series">{currBook?.series}{currBook?.seriesBookNumber?" #":""}{currBook?.seriesBookNumber}</p>
-                  <button className="cart-wishlist-button" onClick={()=>AddToWishlist(cartBooks)}>Move to Wishlist</button>
+                  <button className="cart-wishlist-button" onClick={()=>AddToWishlist(bookId)}>Move to Wishlist</button>
                   <p className="cart-book-price">{currBook?.bookPrice}</p>
-                  <button className="remove-book-button" onClick={()=>RemoveBook(cartBooks)}>×</button>
+                  <button className="remove-book-button" onClick={()=>RemoveBook(bookId)}>×</button>
                 </div>
               );
             })

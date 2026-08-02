@@ -4,12 +4,9 @@ import BookCard from "./../../Components/BookCard/BookCard.jsx";
 import "./Wishlist.css";
 const Wishlist = ({LoggedIn}) => {
     const [WishlistBooks, setWishlistBooks] = useState(JSON.parse(localStorage.getItem("BooksInWishlist")));
-    useEffect(()=>{
-      console.log(WishlistBooks);
-    },[]);
     const RemoveBook=(BookId)=>{
       let books=WishlistBooks;
-      books=books.filter(bookId=>bookId!==BookId);
+      books=books.filter(bookId=>Number(bookId)!==BookId);
       localStorage.setItem("BooksInWishlist",JSON.stringify(books));
       window.location.reload();
     }
@@ -36,7 +33,7 @@ const Wishlist = ({LoggedIn}) => {
               console.log(currBook?.bookId);
               return (
                 <div key={wishlistBooks} className="wishlist-book-card">
-                  <button className="wishlist-button" onClick={RemoveBook}>{"<3"}</button>
+                  <button className="wishlist-button" onClick={()=>RemoveBook(currBook?.bookId)}>{"<3"}</button>
                   <BookCard BookId={currBook?.bookId} Source="wishlist"/>
                 </div>
               )
