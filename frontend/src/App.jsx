@@ -15,7 +15,7 @@ const App = () => {
   const onShowAuth=()=>{
     setShowAuth(prev=>!prev);
   }
-  const [LoggedIn, setLoggedIn] = useState(false);
+  const [LoggedIn, setLoggedIn] = useState(true);
   return (
     <>
       <Navbar ShowAuth={onShowAuth} LoggedIn={LoggedIn}/>
@@ -24,8 +24,8 @@ const App = () => {
         <Route path="/" element={<Discover />} />
         <Route path="/discover" element={<Discover />} />
         <Route path="/library" element={<Library LoggedIn={LoggedIn}/>} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/wishlist" element={<Wishlist LoggedIn={LoggedIn}/>} />
+        <Route path="/cart" element={<Cart LoggedIn={LoggedIn}/>} />
         <Route path="/profile" element={<Profile LoggedIn={LoggedIn} setLoggedIn={setLoggedIn}/>} />
         <Route path="/:Source/:BookId" element={<BookPage LoggedIn={LoggedIn} onShowAuth={onShowAuth}/>}/>
       </Routes>

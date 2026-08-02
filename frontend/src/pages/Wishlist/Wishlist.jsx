@@ -1,8 +1,14 @@
 import React from "react"
 
-const Wishlist = () => {
+const Wishlist = ({LoggedIn}) => {
   return (
-    <div>Wishlist</div>
+    <div>Wishlist
+       {!LoggedIn?(
+        <p>log in to access this feauture</p>
+      ):(
+        <p></p>
+      )}
+    </div>
   )
 }
 

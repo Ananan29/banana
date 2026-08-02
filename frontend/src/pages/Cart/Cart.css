@@ -1,0 +1,181 @@
+.buy-book-card {
+    display: grid;
+    grid-template-columns: 90px 1fr auto auto;
+    grid-template-rows: auto auto auto auto;
+
+    column-gap: 22px;
+    row-gap: 4px;
+
+    align-items: center;
+
+    position: relative;
+
+    padding: 22px;
+
+    background: white;
+    border-radius: 18px;
+
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+
+    margin-bottom: 20px;
+}
+
+.cart-book-image {
+    grid-column: 1;
+    grid-row: 1 / 5;
+
+    width: 90px;
+    height: 130px;
+
+    object-fit: cover;
+
+    border-radius: 10px;
+}
+
+.cart-book-series {
+    grid-column: 2;
+    grid-row: 1;
+
+    margin: 0;
+    margin-bottom:-2px;
+
+    color: #6b7280;
+    font-size: .85rem;
+    font-family: var(--sans);
+}
+
+.cart-book-name {
+    grid-column: 2;
+    grid-row: 2;
+
+    margin: 0;
+
+    font-family: var(--display);
+    font-size: 2rem;
+    line-height: 1.05;
+}
+
+.cart-book-author {
+    grid-column: 2;
+    grid-row: 3;
+
+    margin: 2px 0 0;
+    margin-top: -2px;
+
+    color: #555;
+    font-size: 0.95rem;
+    font-family: var(--serif);
+    /* line-height: 1.2; */
+}
+
+.cart-wishlist-button {
+    grid-column: 2;
+    grid-row: 4;
+
+    justify-self: start;
+
+    margin-top: 8px;
+    padding: 0;
+
+    border: none;
+    background: transparent;
+
+    color: #6b7280;
+
+    font-family: var(--sans);
+    font-size: .95rem;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition: color .2s;
+}
+
+.cart-wishlist-button:hover {
+    color: #7c3aed;
+}
+
+.cart-book-price {
+    grid-column: 3;
+    grid-row: 1 / 5;
+
+    align-self: center;
+    justify-self: end;
+
+    margin: 0;
+
+    font-family: var(--sans);
+    font-size: 1.2rem;
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.remove-book-button {
+    grid-column: 4;
+    grid-row: 1 / 5;
+
+    align-self: center;
+    justify-self: center;
+
+    width: 34px;
+    height: 34px;
+
+    margin: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: #9ca3af;
+
+    font-size: 1.5rem;
+    line-height: 1;
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.remove-book-button:hover {
+    color: #ef4444;
+}
+
+.remove-book-button:hover {
+    color: #ef4444;
+}
+
+.cart-payment-button {
+    display: block;
+
+    width: fit-content;
+    min-width: 260px;
+
+    margin: 36px 0 0 auto;
+
+    padding: 16px 34px;
+
+    border: none;
+    border-radius: 999px;
+
+    background: #111827;
+    color: #fff;
+
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.cart-payment-button:hover {
+    background: #7c3aed;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25);
+}
+
+.cart-payment-button:active {
+    transform: translateY(0);
+}
