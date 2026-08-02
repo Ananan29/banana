@@ -20,7 +20,7 @@ const BookCard = ({BookId, Source}) => {
                 <div className="bookdetails-text">
                     <p className="bookCard-Name">{BookDetails.bookName}</p>
                     <p className="bookCard-Author">{BookDetails.author}</p>
-                    <p className="bookCard-Genre">{BookDetails.genre}</p>
+                    <p className="bookCard-Genre">{BookDetails.genre.join(", ")}</p>
                 </div>
             </div>
         </div>

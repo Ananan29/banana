@@ -171,6 +171,7 @@
     color: #cfcfcf;
     font-size: 0.85rem;
 
+    /* display: inline; */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

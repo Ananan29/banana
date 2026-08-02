@@ -79,7 +79,7 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
 
                 <div className="genres">
                     <h3>Genres</h3>
-                    <p>{book.genre}</p>
+                    <p>{book.genre.join(", ")}</p>
                 </div>
 
                 <div className="book-info">
