@@ -3,7 +3,16 @@ import "./Cart.css";
 import BookDetails from "./../../data/books.js";
 import { useNavigate } from "react-router-dom";
 const Cart = ({LoggedIn}) => {
-    const [CartBooks, setCartBooks] = useState(JSON.parse(localStorage.getItem("BooksInCart")));
+    const [CartBooks, setCartBooks] = useState(JSON.parse(localStorage.getItem("BooksInCart")))||[];
+    const [TotalPrice, setTotalPrice] = useState(0);
+    useEffect(()=>{
+      let totalprice=0;
+      for(let i=0;i<CartBooks.length;i++){
+        const book=BookDetails.find(x=>(x.bookId===Number(CartBooks[i])));
+        totalprice+=Number(book.bookPrice);
+      }
+      setTotalPrice(totalprice);
+    },[]);
     const navigate=useNavigate();
     const RemoveBook=(BookId)=>{
       let books=CartBooks;
@@ -25,12 +34,25 @@ const Cart = ({LoggedIn}) => {
     const OpenBookPage=(BookId)=>{
       navigate(`/cart/${BookId}`);
     }
-    const ProceedToPayment=()=>{}
+    const ProceedToPayment=()=>{
+      let ownedBooks = JSON.parse(localStorage.getItem("ownedBooks")) || [];
+      let topurchase=[...ownedBooks];
+      console.log(topurchase);
+      for(let i=0;i<CartBooks.length;i++){
+        if(!ownedBooks.includes(CartBooks[i]))topurchase.push(CartBooks[i]);
+      }
+      localStorage.setItem("ownedBooks",JSON.stringify(topurchase));
+      localStorage.setItem("BooksInCart",JSON.stringify([]));
+      window.location.reload();
+    }
   return (
     <div>Cart
       {!LoggedIn?(
         <p>log in to access this feauture</p>
       ):(
+        CartBooks.length===0?(
+          <p>Add books</p>
+        ):(
         <div className="cart">
           {
             CartBooks.map(bookId=>{
@@ -48,9 +70,10 @@ const Cart = ({LoggedIn}) => {
               );
             })
           }
+          <p className="cart-total-price">{TotalPrice}</p>
           <button className="cart-payment-button" onClick={ProceedToPayment}>Proceed to payment</button>
         </div>
-      )}
+      ))}
     </div>
   )
 }

@@ -24,7 +24,7 @@ const books = [
     publishDate: "28 July 2022",
     chapters: 44,
     language: "English",
-    bookPrice: "Rs. 699"
+    bookPrice: "6.99"
   },
   {
     bookId: 12,
