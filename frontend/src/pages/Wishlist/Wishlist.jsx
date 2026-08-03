@@ -3,10 +3,10 @@ import BookDetails from "./../../data/books.js";
 import BookCard from "./../../Components/BookCard/BookCard.jsx";
 import "./Wishlist.css";
 const Wishlist = ({LoggedIn}) => {
-    const [WishlistBooks, setWishlistBooks] = useState(JSON.parse(localStorage.getItem("BooksInWishlist")));
+    const [WishlistBooks, setWishlistBooks] = useState(JSON.parse(localStorage.getItem("BooksInWishlist"))||[]);
     const RemoveBook=(BookId)=>{
       let books=WishlistBooks;
-      books=books.filter(bookId=>Number(bookId)!==BookId);
+      books=books.filter(bookId=>(bookId)!==BookId);
       localStorage.setItem("BooksInWishlist",JSON.stringify(books));
       window.location.reload();
     }
@@ -28,16 +28,20 @@ const Wishlist = ({LoggedIn}) => {
       ):(
         <div className="wishlist-page">
           {
-            WishlistBooks.map(wishlistBooks=>{
-              const currBook=BookDetails.find(bookDetails=>bookDetails.bookId===Number(wishlistBooks));
-              console.log(currBook?.bookId);
-              return (
-                <div key={wishlistBooks} className="wishlist-book-card">
-                  <button className="wishlist-button" onClick={()=>RemoveBook(currBook?.bookId)}>{"<3"}</button>
-                  <BookCard BookId={currBook?.bookId} Source="wishlist"/>
-                </div>
-              )
-            })
+            WishlistBooks.length==0?(
+              <p>add books to wishlist</p>
+            ):(
+              WishlistBooks.map(wishlistBooks=>{
+                const currBook=BookDetails.find(bookDetails=>bookDetails.bookId===(wishlistBooks));
+                console.log(currBook?.bookId);
+                return (
+                  <div key={wishlistBooks} className="wishlist-book-card">
+                    <button className="wishlist-button" onClick={()=>RemoveBook(currBook?.bookId)}>{"<3"}</button>
+                    <BookCard BookId={currBook?.bookId} Source="wishlist"/>
+                  </div>
+                )
+              })
+            )
           }
         </div>
       )}

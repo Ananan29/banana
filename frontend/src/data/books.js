@@ -13,10 +13,10 @@ import bookPic13 from "./../assets/bookPic13.jpg";
 import bookPic14 from "./../assets/bookPic14.jpg";
 const books = [
   {
-    bookId: 11,
+    bookId: "B11",
     bookName: "Twisted Lies",
     author: "Ana Huang",
-    series: "Twisted",
+    seriesId: "S1",
     seriesBookNumber: 4,
     genre: ["Romance"],
     pic: bookPic1,
@@ -24,13 +24,13 @@ const books = [
     publishDate: "28 July 2022",
     chapters: 44,
     language: "English",
-    bookPrice: "6.99"
+    bookPrice: 6.99
   },
   {
-    bookId: 12,
+    bookId: "B12",
     bookName: "Reveal Me",
     author: "Tareheh Mafi",
-    series: "Shatter Me",
+    seriesId: "S2",
     seriesBookNumber: 5.5,
     genre: ["Fantasy", "Dystopia", "Romance", "Young Adult", "Romantasy", "Novella", "Science Fiction", "Fiction", "Ebooks", "Audiobook"],
     pic: bookPic2,
@@ -45,10 +45,10 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     bookPrice: 6.99
   },
   {
-    bookId: 13,
+    bookId: "B13",
     bookName: "Shatter Me",
     author: "Tahereh Mafi",
-    series: "Shatter Me",
+    seriesId: "S2",
     seriesBookNumber: 1,
     genre: ["Young Adult", "Dystopian", "Fantasy", "Romance", "Science Fiction"],
     pic: bookPic3,
@@ -81,10 +81,10 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     bookPrice: 6.99
   },
   {
-    bookId: 14,
+    bookId: "B14",
     bookName: "Powerless",
     author: "Lauren Roberts",
-    series: "The Powerless Trilogy",
+    seriesId: "S3",
     seriesBookNumber: 1,
     genre: ["Fantasy", "Young Adult", "Romance", "Romantasy", "Magic"],
     pic: bookPic4, description: `She is the very thing he’s spent his whole life hunting.
@@ -103,10 +103,10 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     bookPrice: 6.99
   },
   {
-    bookId: 15,
+    bookId: "B15",
     bookName: "Fourth Wing",
     author: "Rebecca Yarros",
-    series: "The Empyrean",
+    seriesId: "S4",
     seriesBookNumber: 1,
     genre: ["Fantasy", "Dragons", "Romance", "New Adult", "Romantasy"],
     pic: bookPic5,
@@ -139,10 +139,10 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     bookPrice: 6.99
   },
   {
-    bookId: 16,
+    bookId: "B16",
     bookName: "The Love Hypothesis",
     author: "Ali Hazelwood",
-    series: null,
+    seriesId: null,
     seriesBookNumber: null,
     genre: ["Romance", "Contemporary", "Fiction", "Fake Dating", "Contemporary Romance", "Audiobook", "Adult", "Rom Com", "Chick Lit", "New Adult"],
     pic: bookPic6,
@@ -153,10 +153,10 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     bookPrice: 6.99
   },
   {
-    bookId: 17,
+    bookId: "B17",
     bookName: "The Seven Husbands of Evelyn Hugo",
     author: "Taylor Jenkins Reid",
-    series: "Reidverse",
+    seriesId: "S5",
     seriesBookNumber: 1,
     genre: ["Fiction", "Romance", "Historical Fiction", "LGBT", "Book Club", "Audiobook", "Contemporary", "Queer", "Historical", "Adult"],
     pic: bookPic7,
@@ -167,10 +167,10 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     bookPrice: 6.99
   },
   {
-    bookId: 18,
+    bookId: "B18",
     bookName: "The Cruel Prince",
     author: "Holly Black",
-    series: "The Folk of the Air",
+    seriesId: "S6",
     seriesBookNumber: 1,
     genre: ["Fantasy", "Young Adult", "Romance", "Enemies To Lovers", "Romantasy", "Fae", "Fiction", "Young Adult Fantasy", "Audiobook", "Magic"],
     pic: bookPic8,
@@ -181,10 +181,10 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     bookPrice: 6.99
   },
   {
-    bookId: 19,
+    bookId: "B19",
     bookName: "Divine Rivals",
     author: "Rebecca Ross",
-    series: "Letters of Enchantment",
+    seriesId:"S7",
     seriesBookNumber: 1,
     genre: ["Fantasy", "Romance", "Young Adult", "Romantasy", "Audiobook", "Fiction", "Enemies To Lovers", "Historical Fiction", "Fantasy Romance", "Book Club"],
     pic: bookPic9,
@@ -195,10 +195,10 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     bookPrice: 6.99
   },
   {
-    bookId: 20,
+    bookId: "B20",
     bookName: "Better Than the Movies",
     author: "Lynn Painter",
-    series: "Better Than the Movies",
+    seriesId: "S8",
     seriesBookNumber: 1,
     genre: ["Romance", "Young Adult", "Enemies To Lovers", "Contemporary", "Fiction", "Fake Dating", "Audiobook", "Rom Com", "Contemporary Romance", "Young Adult Romance"],
     pic: bookPic10,
@@ -209,10 +209,10 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     bookPrice: 6.99
   },
   {
-    bookId: 21,
+    bookId: "B21",
     bookName: "A Good Girl's Guide to Murder",
     author: "Holly Jackson",
-    series: "A Good Girl's Guide to Murder",
+    seriesId: "S9",
     seriesBookNumber: 1,
     genre: ["Mystery", "Thriller", "Young Adult", "Mystery Thriller", "Fiction", "Crime", "Audiobook", "Contemporary", "Murder Mystery", "Book Club"],
     pic: bookPic11,
@@ -223,10 +223,10 @@ And don’t miss Find Me, the gorgeous paperback bind-up that brings together Sh
     bookPrice: 6.99
   },
   {
-    bookId: 23,
+    bookId: "B23",
     bookName: "It Ends with Us",
     author: "Colleen Hoover",
-    series: "It Ends with Us",
+    seriesId: "S10",
     seriesBookNumber: 1,
     genre: ["Romance", "Fiction", "Contemporary", "Colleen Hoover", "Audiobook", "New Adult", "Book Club", "Contemporary Romance", "Adult", "Abuse"],
     pic: bookPic13,
@@ -241,10 +241,10 @@ As questions about her new relationship overwhelm her, so do thoughts of Atlas C
     bookPrice: 6.99
   },
   {
-    bookId: 24,
+    bookId: "B24",
     bookName: "The Song of Achilles",
     author: "Madeline Miller",
-    series: null,
+    seriesId: null,
     seriesBookNumber: null,
     genre: ["Fantasy", "Historical Fiction", "Romance", "Fiction", "Mythology", "LGBT", "Queer", "Greek Mythology", "Historical", "Audiobook"],
     pic: bookPic14,

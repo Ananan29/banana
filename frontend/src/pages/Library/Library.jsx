@@ -12,7 +12,7 @@ const Library = ({LoggedIn}) => {
         <div className="owned-books-section">
           {
             OwnedBookIds?.map((ownedbooksid)=>{
-              const book=books.find((book)=>book.bookId===Number(ownedbooksid));
+              const book=books.find((book)=>book.bookId===(ownedbooksid));
               return (
                 <div key={ownedbooksid} className="owned-books-card">
                   <img src={book?.pic} alt={book?.pic}/>

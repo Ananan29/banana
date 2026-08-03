@@ -1,20 +1,19 @@
 import React,{ useState, useEffect } from "react";
 import "./BookPage.css";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import BookDetails from "./../../data/books";
+import SeriesDetails from "./../../data/series";
 const BookPage = ({LoggedIn, onShowAuth}) => {
-    const {BookId,Source}=useParams();
+    const {BookId}=useParams();
+    const location = useLocation();
     const [OwnedBookIds, setOwnedBookIds] = useState(JSON.parse(localStorage.getItem("ownedBooks"))||[]);
     const [BooksInCart, setBooksInCart] = useState(JSON.parse(localStorage.getItem("BooksInCart"))||[]);
     const [BooksInWishlist, setBooksInWishlist] = useState(JSON.parse(localStorage.getItem("BooksInWishlist"))||[]);
-    const [BookInCart, setBookInCart] = useState(BooksInCart.find((bookincart)=>Number(bookincart)===Number(BookId)));
-    const [BookInWishlist,setBookInWishlist]=useState(BooksInWishlist.find((bookinwishlist)=>Number(bookinwishlist)===Number(BookId)));
+    const [BookInCart, setBookInCart] = useState(BooksInCart.find((bookincart)=>(bookincart)===(BookId)));
+    const [BookInWishlist,setBookInWishlist]=useState(BooksInWishlist.find((bookinwishlist)=>(bookinwishlist)===(BookId)));
+    const book=BookDetails.find(x=>x.bookId===(BookId));
+    const series=SeriesDetails.find(x=>x.seriesId===book.seriesId)||null;
     const navigate=useNavigate();
-    const GoBack=()=>{
-        navigate(`/${Source}`);
-    }
-    const book=BookDetails.find(x=>x.bookId===Number(BookId));
-    console.log(book.author);
     const BuyClicked=()=>{
         if(!LoggedIn)onShowAuth();
         else{
@@ -43,11 +42,22 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
             window.location.reload();
         }
     }
+    const GoBack=()=>{
+        navigate(`/${location.state?.from}`||"/discover");
+    }
     const GoToCart=()=>{
         navigate("/cart");
     }
     const GoToWishlist=()=>{
         navigate("/wishlist");
+    }
+    const GoToSeriesPage=()=>{
+        navigate(`/series/${book.seriesId}`,{
+            state:{
+                from:`/book/${BookId}`,
+                previous:location.state?.from||"/discover"
+            }
+        });
     }
   return (
     <div>
@@ -63,7 +73,7 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
                     className="book-cover"
                 />
                 {
-                    OwnedBookIds.find((ownedbooksid)=>Number(ownedbooksid)===Number(BookId))?(
+                    OwnedBookIds.find((ownedbooksid)=>(ownedbooksid)===(BookId))?(
                         <button className="buy-btn">Open Book</button>
                     ):(
                         
@@ -100,9 +110,9 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
 
                 <h1>{book.bookName}</h1>
 
-                {book.series && (
-                    <div className="series-tag">
-                        {book.series}
+                {series && (
+                    <div className="series-tag" onClick={GoToSeriesPage}>
+                        {series.seriesName}
                         {book.seriesBookNumber && ` #${book.seriesBookNumber}`}
                     </div>
                 )}

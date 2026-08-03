@@ -4,13 +4,13 @@ import "./BookCard.css";
 import books from "./../../data/books.js";
 const BookCard = ({BookId, Source}) => {
     const navigate=useNavigate();
-    const OpenBookPage=()=>(navigate(`/${Source}/${BookId}`))
+    const OpenBookPage=()=>(navigate(`/book/${BookId}`,{state:{from:`/${Source}`}}));
     const currBook=books.find(book=>book.bookId===BookId);
     const BookDetails={
         bookName:currBook?.bookName||"",
         author:currBook?.author||"",
-        genre:currBook?.genre||"",
-        pic:currBook?.pic||"",
+        genre:currBook?.genre||[],
+        pic:currBook?.pic||null,
     }
   return (
     <div>

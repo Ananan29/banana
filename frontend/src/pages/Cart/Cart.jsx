@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Cart.css";
 import BookDetails from "./../../data/books.js";
+import SeriesDetails from "./../../data/series.js"
 import { useNavigate } from "react-router-dom";
 const Cart = ({LoggedIn}) => {
     const [CartBooks, setCartBooks] = useState(JSON.parse(localStorage.getItem("BooksInCart")))||[];
@@ -9,8 +10,8 @@ const Cart = ({LoggedIn}) => {
     useEffect(()=>{
       let totalprice=0;
       for(let i=0;i<CartBooks.length;i++){
-        const book=BookDetails.find(x=>(x.bookId===Number(CartBooks[i])));
-        totalprice+=Number(book.bookPrice);
+        const book=BookDetails.find(x=>(x.bookId===(CartBooks[i])));
+        totalprice+=(book.bookPrice);
       }
       setTotalPrice(totalprice);
     },[]);
@@ -32,7 +33,7 @@ const Cart = ({LoggedIn}) => {
       RemoveBook(BookId);
     }
     const OpenBookPage=(BookId)=>{
-      navigate(`/cart/${BookId}`);
+      navigate(`/book/${BookId}`,{state:{from:"/cart"}});
     }
     const ProceedToPayment=()=>{
       let ownedBooks = JSON.parse(localStorage.getItem("ownedBooks")) || [];
@@ -56,13 +57,14 @@ const Cart = ({LoggedIn}) => {
         <div className="cart">
           {
             CartBooks.map(bookId=>{
-              const currBook=BookDetails.find(bookDetails=>bookDetails.bookId===Number(bookId));
+              const currBook=BookDetails.find(bookDetails=>bookDetails.bookId===(bookId));
+              const currSeries=SeriesDetails.find(seriesDetails=>seriesDetails.seriesId===currBook.seriesId);
               return(
                 <div key={bookId} className="buy-book-card">
                   <img className="cart-book-image" src={currBook?.pic}/>
                   <p className="cart-book-name" onClick={()=>OpenBookPage(bookId)}>{currBook?.bookName}</p>
                   <p className="cart-book-author">{currBook?.author}</p>
-                  <p className="cart-book-series">{currBook?.series}{currBook?.seriesBookNumber?" #":""}{currBook?.seriesBookNumber}</p>
+                  <p className="cart-book-series">{currSeries?.seriesName}{currBook?.seriesBookNumber?" #":""}{currBook?.seriesBookNumber}</p>
                   <button className="cart-wishlist-button" onClick={()=>AddToWishlist(bookId)}>Move to Wishlist</button>
                   <p className="cart-book-price">{currBook?.bookPrice}</p>
                   <button className="remove-book-button" onClick={()=>RemoveBook(bookId)}>×</button>
