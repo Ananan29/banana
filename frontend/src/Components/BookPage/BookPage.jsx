@@ -68,8 +68,8 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
 
             <div className="book-left">
                 <img
-                    src={book.pic}
-                    alt={book.bookName}
+                    src={book.coverImage}
+                    alt={book.title}
                     className="book-cover"
                 />
                 {
@@ -108,7 +108,7 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
 
             <div className="book-right">
 
-                <h1>{book.bookName}</h1>
+                <h1>{book.title}</h1>
 
                 {series && (
                     <div className="series-tag" onClick={GoToSeriesPage}>
@@ -133,12 +133,12 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
 
                     <div className="book-info-item">
                         <span>Total Chapters</span>
-                        <p>{book.chapters}</p>
+                        <p>{book.totalChapters}</p>
                     </div>
 
                     <div className="book-info-item">
                         <span>Published</span>
-                        <p>{book.publishDate}</p>
+                        <p>{book.publishedAt}</p>
                     </div>
 
                     <div className="book-info-item">

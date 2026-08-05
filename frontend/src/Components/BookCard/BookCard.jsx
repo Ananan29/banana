@@ -7,18 +7,18 @@ const BookCard = ({BookId, Source}) => {
     const OpenBookPage=()=>(navigate(`/book/${BookId}`,{state:{from:`/${Source}`}}));
     const currBook=books.find(book=>book.bookId===BookId);
     const BookDetails={
-        bookName:currBook?.bookName||"",
+        title:currBook?.title||"",
         author:currBook?.author||"",
         genre:currBook?.genre||[],
-        pic:currBook?.pic||null,
+        coverImage:currBook?.coverImage||null,
     }
   return (
     <div>
         <div className="BookCard" onClick={OpenBookPage}>
             <div className="bookcard-container">
-                <img src={BookDetails.pic}/>
+                <img src={BookDetails.coverImage}/>
                 <div className="bookdetails-text">
-                    <p className="bookCard-Name">{BookDetails.bookName}</p>
+                    <p className="bookCard-Name">{BookDetails.title}</p>
                     <p className="bookCard-Author">{BookDetails.author}</p>
                     <p className="bookCard-Genre">{BookDetails.genre.join(", ")}</p>
                 </div>

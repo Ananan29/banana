@@ -22,7 +22,7 @@ const SeriesPage = () => {
         {/* bookcard */}
         {
             bookDetailsInSeries.map((book)=>{
-                return <p key={book.bookId}>{book.bookId} {book.bookName}</p>;
+                return <p key={book.bookId}>{book.bookId} {book.title}</p>;
             })
         }
     </div>

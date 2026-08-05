@@ -61,8 +61,8 @@ const Cart = ({LoggedIn}) => {
               const currSeries=SeriesDetails.find(seriesDetails=>seriesDetails.seriesId===currBook.seriesId);
               return(
                 <div key={bookId} className="buy-book-card">
-                  <img className="cart-book-image" src={currBook?.pic}/>
-                  <p className="cart-book-name" onClick={()=>OpenBookPage(bookId)}>{currBook?.bookName}</p>
+                  <img className="cart-book-image" src={currBook?.coverImage}/>
+                  <p className="cart-book-name" onClick={()=>OpenBookPage(bookId)}>{currBook?.title}</p>
                   <p className="cart-book-author">{currBook?.author}</p>
                   <p className="cart-book-series">{currSeries?.seriesName}{currBook?.seriesBookNumber?" #":""}{currBook?.seriesBookNumber}</p>
                   <button className="cart-wishlist-button" onClick={()=>AddToWishlist(bookId)}>Move to Wishlist</button>

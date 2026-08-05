@@ -15,9 +15,9 @@ const Library = ({LoggedIn}) => {
               const book=books.find((book)=>book.bookId===(ownedbooksid));
               return (
                 <div key={ownedbooksid} className="owned-books-card">
-                  <img src={book?.pic} alt={book?.pic}/>
+                  <img src={book?.coverImage} alt={book?.coverImage}/>
                   <div className="owned-books-details">
-                    <p className="owned-books-name">{book?.bookName}</p>
+                    <p className="owned-books-name">{book?.title}</p>
                     <p className="owned-books-author">{book?.author}</p>
                   </div>
                 </div>

@@ -60,5 +60,3 @@ const series = [
     seriesBooks: ["B23"]
   }
 ];
-
-export default series;
