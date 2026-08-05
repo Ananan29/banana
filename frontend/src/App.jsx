@@ -10,6 +10,7 @@ import Cart from "./pages/Cart/Cart.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
 import BookPage from "./Components/BookPage/BookPage.jsx";
 import SeriesPage from "./Components/SeriesPage/SeriesPage.jsx";
+import AuthorPage from "./Components/AuthorPage/AuthorPage.jsx";
 
 const App = () => {
   const [ShowAuth, setShowAuth] = useState(false);
@@ -30,6 +31,7 @@ const App = () => {
         <Route path="/profile" element={<Profile LoggedIn={LoggedIn} setLoggedIn={setLoggedIn}/>} />
         <Route path="/book/:BookId" element={<BookPage LoggedIn={LoggedIn} onShowAuth={onShowAuth}/>}/>
         <Route path="/series/:SeriesId" element={<SeriesPage/>}/>
+        <Route path="/author/:AuthorId" element={<AuthorPage/>}/>
       </Routes>
     </>
   )

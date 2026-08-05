@@ -43,7 +43,7 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
         }
     }
     const GoBack=()=>{
-        navigate(`/${location.state?.from}`||"/discover");
+        navigate(-1);
     }
     const GoToCart=()=>{
         navigate("/cart");
@@ -52,12 +52,10 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
         navigate("/wishlist");
     }
     const GoToSeriesPage=()=>{
-        navigate(`/series/${book.seriesId}`,{
-            state:{
-                from:`/book/${BookId}`,
-                previous:location.state?.from||"/discover"
-            }
-        });
+        navigate(`/series/${book.seriesId}`);
+    }
+    const GoToAuthorPage=()=>{
+        navigate(`/author/${book.authorId}`);
     }
   return (
     <div>
@@ -117,7 +115,7 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
                     </div>
                 )}
 
-                <p className="author">{book.author}</p>
+                <p className="author" onClick={GoToAuthorPage}>{book.author}</p>
 
                 <div className="description">
                     <h3>Description</h3>
