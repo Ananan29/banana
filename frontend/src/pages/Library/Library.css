@@ -1,93 +1,161 @@
 .owned-books-section {
-    width: min(1200px, 95%);
-    margin: 40px auto 70px;
-
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 32px;
-
-    justify-items: center;
+  padding: 20px;
 }
+
+
+.continue-reading-section {
+  margin-bottom: 30px;
+}
+
+
+.continue-reading-section h2 {
+  margin-bottom: 15px;
+}
+
 
 .owned-books-card {
-    width: 220px;
-    height: 320px;
-
-    position: relative;
-
-    overflow: hidden;
-    border-radius: 14px;
-
-    cursor: pointer;
-
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-    z-index: 1;
+  width: 200px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: white;
+  transition: transform 0.2s ease;
 }
+
 
 .owned-books-card:hover {
-    transform: scale(1.08);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-
-    z-index: 10;
+  transform: translateY(-4px);
 }
+
 
 .owned-books-card img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-
-    display: block;
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  display: block;
 }
+
 
 .owned-books-details {
-    position: absolute;
-    inset: 0;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-
-    padding: 16px;
-    box-sizing: border-box;
-
-    background: rgba(0, 0, 0, 0.72);
-
-    opacity: 0;
-
-    transition: opacity 0.3s ease;
+  padding: 12px;
 }
 
-.owned-books-card:hover .owned-books-details {
-    opacity: 1;
-}
 
 .owned-books-name {
-    margin: 0 0 8px;
-
-    color: white;
-
-    font-family: var(--display);
-    font-size: 1.1rem;
-    font-weight: 700;
-
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-
-    overflow: hidden;
+  font-weight: bold;
+  margin: 0 0 5px;
 }
 
+
 .owned-books-author {
-    margin: 0;
+  margin: 0 0 10px;
+  color: #666;
+}
 
-    color: #e8e8e8;
 
-    font-family: var(--serif);
-    font-size: 0.9rem;
+.progress-container {
+  width: 100%;
+  height: 6px;
+  background-color: #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 10px 0 5px;
+}
 
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+.progress-bar {
+  height: 100%;
+  background-color: #4caf50;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+
+.owned-books-details p:last-child {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}
+
+
+/* Filters */
+
+
+.library-filters {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+
+.library-filters button {
+  padding: 8px 15px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: white;
+  cursor: pointer;
+}
+
+
+.library-filters button:hover {
+  background-color: #eee;
+}
+
+
+/* Highlight current filter */
+
+.library-filters button.active-filter {
+  background-color: black;
+  color: white;
+  border-color: black;
+}
+
+
+/* Book grid */
+
+
+.owned-books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 35px;
+}
+
+
+.continue-reading-book {
+  display: flex;
+  gap: 25px;
+  align-items: flex-start;
+  margin-bottom: 55px;
+}
+
+.continue-reading-image {
+  width: 200px;
+  cursor: pointer;
+}
+
+.continue-reading-image img {
+  width: 200px;
+  height: 280px;
+  object-fit: cover;
+  display: block;
+  border-radius: 10px;
+}
+
+.continue-reading-details {
+  padding-top: 10px;
+  cursor: pointer;
+  width: 300px;
+}
+
+.continue-reading-details .owned-books-name {
+  font-size: 24px;
+}
+
+.continue-reading-details .owned-books-author {
+  font-size: 18px;
+}
+
+.continue-reading-details .progress-container {
+  margin-top: 25px;
 }

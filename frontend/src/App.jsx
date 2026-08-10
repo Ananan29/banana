@@ -11,16 +11,20 @@ import Profile from "./pages/Profile/Profile.jsx";
 import BookPage from "./Components/BookPage/BookPage.jsx";
 import SeriesPage from "./Components/SeriesPage/SeriesPage.jsx";
 import AuthorPage from "./Components/AuthorPage/AuthorPage.jsx";
-
+import OpenBookPage from "./pages/OpenBookPage/OpenBookPage.jsx";
 const App = () => {
   const [ShowAuth, setShowAuth] = useState(false);
+  const [ShowNavBar, setShowNavBar] = useState(true);
   const onShowAuth=()=>{
     setShowAuth(prev=>!prev);
+  }
+  const onShowNavBar=(show)=>{
+    setShowNavBar(show);
   }
   const [LoggedIn, setLoggedIn] = useState(true);
   return (
     <>
-      <Navbar ShowAuth={onShowAuth} LoggedIn={LoggedIn}/>
+      {ShowNavBar && <Navbar ShowAuth={onShowAuth} LoggedIn={LoggedIn}/>}
       {ShowAuth && <Signup ShowAuth={onShowAuth} setLoggedIn={setLoggedIn}/>}
       <Routes>
         <Route path="/" element={<Discover />} />
@@ -32,6 +36,7 @@ const App = () => {
         <Route path="/book/:BookId" element={<BookPage LoggedIn={LoggedIn} onShowAuth={onShowAuth}/>}/>
         <Route path="/series/:SeriesId" element={<SeriesPage/>}/>
         <Route path="/author/:AuthorId" element={<AuthorPage/>}/>
+        <Route path="readbook/:BookId" element={<OpenBookPage onShowNavBar={onShowNavBar}/>}/>
       </Routes>
     </>
   )

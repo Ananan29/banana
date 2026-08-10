@@ -57,6 +57,9 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
     const GoToAuthorPage=()=>{
         navigate(`/author/${book.authorId}`);
     }
+    const OpenBook=()=>{
+        navigate(`/readbook/${book.bookId}`);
+    }
   return (
     <div>
         <div className="book-page">
@@ -72,7 +75,7 @@ const BookPage = ({LoggedIn, onShowAuth}) => {
                 />
                 {
                     OwnedBookIds.find((ownedbooksid)=>(ownedbooksid)===(BookId))?(
-                        <button className="buy-btn">Open Book</button>
+                        <button className="buy-btn" onClick={OpenBook}>Open Book</button>
                     ):(
                         
                             BookInCart?(<div className="book-buy-wishlist-buttons">

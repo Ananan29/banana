@@ -37,12 +37,18 @@ const Cart = ({LoggedIn}) => {
     }
     const ProceedToPayment=()=>{
       let ownedBooks = JSON.parse(localStorage.getItem("ownedBooks")) || [];
+      let wishlistBooks = JSON.parse(localStorage.getItem("BooksInWishlist")) || [];
       let topurchase=[...ownedBooks];
+      let wishlist=[...wishlistBooks];
       console.log(topurchase);
       for(let i=0;i<CartBooks.length;i++){
         if(!ownedBooks.includes(CartBooks[i]))topurchase.push(CartBooks[i]);
       }
+      wishlist = wishlistBooks.filter(
+        book => !CartBooks.includes(book)
+      );
       localStorage.setItem("ownedBooks",JSON.stringify(topurchase));
+      localStorage.setItem("BooksInWishlist", JSON.stringify(wishlist));
       localStorage.setItem("BooksInCart",JSON.stringify([]));
       navigate("/library");
     }
