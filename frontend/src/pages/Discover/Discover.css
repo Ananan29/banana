@@ -9,13 +9,15 @@
     gap: 20px;
 
     width: 100%;
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: hidden;
 
     padding: 20px 70px;
     box-sizing: border-box;
 
     scroll-behavior: smooth;
+    touch-action: pan-y;
+    overscroll-behavior-x: contain;
 
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -77,6 +79,7 @@
         rgba(20, 20, 20, 0.9),
         rgba(20, 20, 20, 0)
     );
+    z-index:2;
 }
 
 .scroll-btn.right {
