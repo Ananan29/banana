@@ -1,84 +1,45 @@
 import React from "react";
 import Navbar from "../../components/Navbar/Navbar.jsx";
-import BookCard from "../../Components/BookCard/BookCard.jsx";
 import "./Discover.css";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useRef, useState, useEffect } from "react";
-import BooksDetails from "./../../data/books.js";
-const Discover = () => {
-  const scrollRef = useRef(null);
-  const wheelLockedRef = useRef(false);
-  const wheelTimeoutRef = useRef(null);
-  const [showLeft, setShowLeft] = useState(false);
-  const [showRight, setShowRight] = useState(true);
-  const [hoverLeft, setHoverLeft] = useState(false);
-  const [hoverRight, setHoverRight] = useState(false);
-  const scroll = (amount) => {
-    scrollRef.current.scrollBy({
-      left: amount,
-      behavior: "smooth",
-    });
-  };
-  const handleWheel = (e) => {
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-      e.preventDefault();
+import BookScroll from "../../Components/BookScroll/BookScroll.jsx";
+import axios from "axios";
+const Discover = ({ LoggedIn }) => {
+  const [BooksDetails, setBooksDetails] = useState([]);
+  useEffect(() => {
+    const getBooks = async () => {
+      try {
+        const response = await axios.get("https://blue-coleman-assumptions-blocks.trycloudflare.com/api/dashboard/");
+        setBooksDetails(response.data.filter((genre) => genre.books.length!==0));
+      } catch (err) {
+        console.log(err);
+      }
     }
-  };
-
-  const updateArrows = () => {
-  const el = scrollRef.current;
-
-  setShowLeft(el.scrollLeft > 5);
-
-  setShowRight(
-    el.scrollLeft < el.scrollWidth - el.clientWidth - 5
-  );
-};
-
-useEffect(() => {
-  updateArrows();
-
-  const el = scrollRef.current;
-  el.addEventListener("scroll", updateArrows);
-  window.addEventListener("resize", updateArrows);
-
-  return () => {
-    el.removeEventListener("scroll", updateArrows);
-    window.removeEventListener("resize", updateArrows);
-  };
-}, []);
-return (
-  <>
-    gg
-    gg
-    <div className="search-bar-area">
-      <button className="search-button">search</button>
-    </div>
-    <div className="books-section">
-      {showLeft && (
-        <button
-          className={"scroll-btn left"}
-          onClick={() => scroll(-600)}
-        >
-          <FaChevronLeft />
-        </button>
-      )}
-      <div className="books-scroll-cards" ref={scrollRef} onWheel={handleWheel}>
-        {
-          BooksDetails.map(
-            bookdetails => <BookCard key={bookdetails.bookId} BookId={bookdetails.bookId} Source="discover" />
-          )
-        }
+    getBooks();
+  }, [])
+  useEffect(() => {
+    console.log(BooksDetails);
+  }, [BooksDetails])
+  
+  return (
+    <>
+      gg
+      gg
+      <div className="search-bar-area">
+        <button className="search-button">search</button>
       </div>
-      {showRight && (
-        <button className={"scroll-btn right"} onClick={() => scroll(600)}>
-          <FaChevronRight />
-        </button>
-      )}
-    </div>
-  </>
-)
+      {
+        BooksDetails.map((genre) => {
+          return (
+            <BookScroll key={genre.title} Title={genre.title} PreBooks={genre.books}/>
+          );
+        })
+      }
+
+    </>
+  )
 }
 
 export default Discover
+
 
