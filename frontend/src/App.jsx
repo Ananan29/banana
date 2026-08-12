@@ -28,7 +28,7 @@ const App = () => {
       {ShowAuth && <Signup ShowAuth={onShowAuth} setLoggedIn={setLoggedIn}/>}
       <Routes>
         <Route path="/" element={<Discover />} />
-        <Route path="/discover" element={<Discover />} />
+        <Route path="/discover" element={<Discover LoggedIn={LoggedIn}/>} />
         <Route path="/library" element={<Library LoggedIn={LoggedIn}/>} />
         <Route path="/wishlist" element={<Wishlist LoggedIn={LoggedIn}/>} />
         <Route path="/cart" element={<Cart LoggedIn={LoggedIn}/>} />
