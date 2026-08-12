@@ -124,6 +124,8 @@ const seed = async () => {
         authorId: authorByKey[b.authorKey]._id,
         ...(b.seriesKey ? { seriesId: seriesByKey[b.seriesKey]._id } : {}),
         description: b.description,
+        // mock price: prefer explicit `b.price`, otherwise derive from popularityScore
+        price: b.price ?? Math.max(1, Number((4.99 + (100 - (b.popularityScore || 50)) * 0.1).toFixed(2))),
         genres: b.genres,
         coverImage: b.coverImage,
         language: b.language,

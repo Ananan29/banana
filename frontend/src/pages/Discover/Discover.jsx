@@ -9,7 +9,7 @@ const Discover = ({ LoggedIn }) => {
   useEffect(() => {
     const getBooks = async () => {
       try {
-        const response = await axios.get("https://blue-coleman-assumptions-blocks.trycloudflare.com/api/dashboard/");
+        const response = await axios.get("http://localhost:5001/api/dashboard/");
         setBooksDetails(response.data.filter((genre) => genre.books.length!==0));
       } catch (err) {
         console.log(err);
