@@ -94,10 +94,10 @@ export const getGenreBooks = async (limit, start, excludedIds,genre) => {
 
 };
 
-export const getCurrentlyReading= async (limit,start,userId) => {
+export const getUserBooks= async (limit,start,userId,status) => {
     const books= await OwnedBook.find({
         userId,
-        status:"reading"
+        status,
     })
         .skip(start)
         .limit(limit)
@@ -115,6 +115,7 @@ export const getCurrentlyReading= async (limit,start,userId) => {
             bookId: book.bookId._id,
             title:book.bookId.title,
             author:book.bookId.authorId.name,
+            coverImage: book.bookId.coverImage,
         }
     })
 };
@@ -185,7 +186,7 @@ export const getRecommendedBooks=async(limit,start,excludedIds,userId)=>{
 
     result.sort((a, b) => b.score - a.score);
     const recommendedBooks = result.slice(start, start + limit).map(item => ({
-        _id:item.book._id,
+        bookId:item.book._id,
         title: item.book.title,
         author: item.book.authorId,
         coverImage: item.book.coverImage

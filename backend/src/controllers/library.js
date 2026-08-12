@@ -1,13 +1,17 @@
-import Book from "../models/book";
+import Book from "../models/book.js";
+import OwnedBook from '../models/ownedBook.js';
+import {getUserBooks} from "../utils/functions.js";
+import mongoose from "mongoose";
+import Chapter from "../models/chapter.js";
 
 export const UserBooks=async(req,res,next)=>{
     try{
-        const limit = req.query.limit?.trim() ? Number(req.query.limit) : NaN;
-        const start = req.query.start?.trim() ? Number(req.query.start) : NaN;
+        const limit = Number(req.query.limit);
+        const start = Number(req.query.start);
         const userId=req.user.userId;
         const status=req.query.status?.trim().toLowerCase();
 
-        if(Number.isNaN(limit)||Number.isNaN(start) || !["owned", "reading", "completed"].includes(status)){
+        if (!Number.isInteger(limit) ||!Number.isInteger(start) ||limit <= 0 ||start < 0 ||!["owned", "reading", "completed"].includes(status)){
             return res.status(400).json({
                 message: "Invalid Query"
             });
@@ -26,21 +30,18 @@ export const UserBooks=async(req,res,next)=>{
 
 };
 
-
-
-
 export const libraryPage=async(req,res,next)=>{
     try{    
         const userId=req.user.userId;
 
         const result  =await Promise.all([
-            Book.find({userId,status:"reading"}).sort({updatedAt:-1}).limit(1),
+            getUserBooks(1,0,userId,"reading"),
             getUserBooks(10,0,userId,"owned"),
         ]);
 
         return res.status(200).json([
             {title:"Continue-Reading",
-            books:result[0]},
+            books:result[0][0]},
 
             {title:"owned",
             books:result[1]},
@@ -52,60 +53,72 @@ export const libraryPage=async(req,res,next)=>{
 };
 
 
-const readBook=async(req,res,next)=>{
-    const userId=req.user.userId;
-    const bookId=req.params.bookId;
-    const order=req.query.order?.trim() ? Number(req.query.order) : NaN;
+export const readBook=async(req,res,next)=>{
+    try{
+        const userId=req.user.userId;
+        const bookId=req.query.bookId;
+        const order= req.query.order !== undefined? Number(req.query.order): undefined;
 
-    if(!bookId?.trim() || !mongoose.Types.ObjectId.isValid(bookId)){
-        return res.status(400).json({
-            message: "not valid bookid",
-        });
-    };
-
-    const book=await OwnedBook.findOne({userId,bookId}).select("readingOrder status");
-
-    if(!book){
-        return res.status(400).json({
-            message:"couldnt find book"
-        })
-    }
-    if(!Number.isNaN(order)){
-        if(!Number.isInteger(order) ||order>book.readingOrder.totalOrder || order<1){
+        if(!mongoose.Types.ObjectId.isValid(bookId)){
             return res.status(400).json({
-                message:"invalid order"
+                message: "not valid bookid",
+            });
+        };
+
+        const book=await OwnedBook.findOne({userId,bookId}).select("readingOrder status");
+
+        if(!book){
+            return res.status(400).json({
+            message:"couldnt find book"
+            })
+        }
+        if(order!==undefined){
+            if(order<1||order>book.readingOrder.totalOrder || !Number.isInteger(order)){
+                return res.status(400).json({
+                    message:"invalid order"
+                });
+            }
+            
+            if(order===book.readingOrder.totalOrder)
+                {book.status="completed";}
+
+            else
+                {book.status="reading";}
+
+            const result=await Chapter.findOne({bookId,order}).select("order chapterNo title content -_id").lean();
+
+            if (!result) {
+                return res.status(404).json({
+                    message: "Chapter not found"
+                });
+            }
+
+            book.readingOrder.currentOrder=order;
+            await book.save();
+
+            return res.status(200).json({
+                ...result,
+                status:book.status,
+
             });
         }
-        if(order===book.readingOrder.totalOrder)
-            {book.status="completed";}
-
-        else
-            {book.status="reading";}
-
-        const result=await Chapter.findOne({bookId,order}).select("order chapter title content").lean();
-
-        book.readingOrder.currentOrder=order;
-        await book.save();
-
-        return res.status(200).json({
-            ...result,
-
-        });
-    }
                 
-    else{
-        if(book.status==="completed")
-            {book.readingOrder.currentOrder=1;book.status="reading";await book.save();}
+        else{
+            if(book.status==="completed")
+                {book.readingOrder.currentOrder=1;book.status="reading";await book.save();}
 
-        const result=await Chapter.findOne({bookId, order:book.readingOrder.currentOrder}).select("order chapter title content").lean()
+            const result=await Chapter.findOne({bookId, order:book.readingOrder.currentOrder}).select("order chapterNo title content -_id").lean();
         
-        return res.status(200).json({
-            ...result,
-            readingOrder: book.readingOrder,
-        });
+            return res.status(200).json({
+                ...result,
+                totalOrder:book.readingOrder.totalOrder,
+                status:book.status,
+            });
+        }
     }
-
-
+    catch(error){
+        next(error);
+    }
 };
 
 

@@ -4,13 +4,12 @@ import {getExcludedIds,getGenreBooks} from '../utils/functions.js';
 
 export const genreBooks = async (req, res, next) => {
     try{
-        const limit = req.query.limit?.trim() ? Number(req.query.limit) : NaN;
-        const start = req.query.start?.trim() ? Number(req.query.start) : NaN;
-        const genre = (req.params.genre || req.query.genre)?.trim().toLowerCase();
-
+        const limit = Number(req.query.limit);
+        const start = Number(req.query.start);
+        const genre = req.query.genre ?.trim().toLowerCase();
         
 
-        if (Number.isNaN(limit) || Number.isNaN(start) || !genre) {
+        if (!Number.isInteger(limit) || !Number.isInteger(start) || !genre || limit <= 0 || start < 0) {
             return res.status(400).json({
                 message: "bad query"
             });

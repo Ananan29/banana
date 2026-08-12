@@ -7,6 +7,6 @@ import optionalAuthMiddleware from '../middleware/optionalAuth.js';
 
 const router=express.Router();
 
-router.get("/:genre",optionalAuthMiddleware,genreBooks);
+router.get("/",optionalAuthMiddleware,genreBooks);
 
 export default router;

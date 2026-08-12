@@ -28,12 +28,11 @@ const userSchema= new mongoose.Schema(
             maxlength:128,
             select:false,
             match: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*$/,
-    
-  
         },
 
     },
-    {timestamps:true}
+    {timestamps:true,
+    versionKey: false,}
 
 )
 

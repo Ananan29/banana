@@ -12,7 +12,10 @@ const favouriteSchema=new mongoose.Schema(
         required: true,}
 
     },
-    {timestamps:true,},);
+    {timestamps:true,
+    versionKey: false,},);
+
+favouriteSchema.index({ userId: 1, bookId: 1 },{ unique: true });
 
 const FavouriteBook=mongoose.model('FavouriteBook',favouriteSchema);
 

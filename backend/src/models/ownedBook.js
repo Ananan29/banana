@@ -28,7 +28,7 @@ const ownedBookSchema=new mongoose.Schema({
             required: true,
             validate: {
                 validator: function (value) {
-                    return value <= this.totalOrder;
+                    return value <= this.readingOrder.totalOrder;
                 },
                 message: "currentOrder cannot be greater than totalOrder"
             }
@@ -39,28 +39,13 @@ const ownedBookSchema=new mongoose.Schema({
             required: true,
         },
     },
-
-    readingProgress:{
-        currentChapter: {
-            type: Number,
-            required: true,
-            validate: {
-                validator: function (value) {
-                    return value <= this.totalChapter;
-                },
-                message: "currentChapter cannot be greater than totalChapter"
-            }
-        },
-
-        totalChapter: {
-            type: Number,
-            required: true,
-            min:1
-        },
-    }
 },
 
-    {timestamps:true});
+    {timestamps:true,
+    versionKey: false,});
+
+ownedBookSchema.index({ userId: 1, bookId: 1 },{ unique: true });
+ownedBookSchema.index({ status: 1 });
 
 const OwnedBook=mongoose.model('OwnedBook',ownedBookSchema);
 

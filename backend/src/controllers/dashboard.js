@@ -5,6 +5,7 @@ import Author from '../models/author.js';
 import Series from '../models/series.js';
 import {getTopRated,getRecentlyAdded,getExcludedIds,getRecentlyPublished,getGenreBooks,getUserBooks,getRecommendedBooks} from '../utils/functions.js';
 import { getRandomGenres } from '../utils/extraFunctions.js';
+import mongoose from "mongoose";
 
 export const dashboard= async(req,res,next)=>{
     try{
@@ -27,13 +28,13 @@ export const dashboard= async(req,res,next)=>{
         ]);
 
         const result =[
-            {title: "Top Rated",
+            {title: "Top-Rated",
             books: topRated},
 
-            {title: "Recently Added",
+            {title: "Recently-Added",
             books: recentlyAdded},
 
-            {title: "New Releases",
+            {title: "New-Releases",
             books: recentlyPublished},
 
             ...dashboardGenre
@@ -73,7 +74,7 @@ export const dashboardPersonalized=async (req,res,next)=>{
         ]);
 
         const result =[
-            {title: "Currently-Reading",
+            {title: "Reading",
             books: currentlyReading},
 
             {title: "Top-Rated",

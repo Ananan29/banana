@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 
-const bookSchema= new mongoose.Schema(
-    {title:{
+const bookSchema= new mongoose.Schema({
+    title:{
         type: String,
         trim:true,
         required:true,
@@ -18,9 +18,16 @@ const bookSchema= new mongoose.Schema(
         ref: "Series",
     },
 
-    //series no 
-    //pages
-    //bookprice
+    seriesNo:{
+        type:Number,
+        min:1,
+    },
+
+    price:{
+        type:Number,
+        min:1,
+        required: true,
+    },
 
     description: {
         type: String,
@@ -37,16 +44,18 @@ const bookSchema= new mongoose.Schema(
             lowercase:true,
             enum: ["action","adventure","biography","business","comedy","crime","drama","fantasy","historical",
             "horror","mystery","romance","science-fiction","thriller","young-adult","children",]}],
-            validate: {
+        validate: {
             validator: (genres) => genres.length > 0,
             message: "At least one genre is required.",
-    },},
+        },
+    },
 
     coverImage: {
         type: String,
         required: true,
         trim: true,
     },
+
     language:{
         type: String,
         required: true,
@@ -58,7 +67,6 @@ const bookSchema= new mongoose.Schema(
     totalChapters: {
         type: Number,
         required: true,
-        min: 1,
     },
 
     publishedAt: {
@@ -68,30 +76,37 @@ const bookSchema= new mongoose.Schema(
     
     averageRating: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0,
+        max: 5,
     },
 
     ratingsCount: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0,
     },
+
     popularityScore: {
     type: Number,
     default: 0
     },
-    },
+},
 
     {timestamps: true,
     versionKey: false,
-    }
+}
 );
 
-bookSchema.index({ genres: 1 });
-bookSchema.index({ publishedAt: -1 });
+bookSchema.index({genres: 1});
+bookSchema.index({publishedAt: -1});
+bookSchema.index({popularityScore:-1});
+bookSchema.index({updatedAt:-1});
+
+bookSchema.pre("save", function () {
+    this.popularityScore =this.averageRating * Math.log10(this.ratingsCount + 1);
+});
 
 const Book=mongoose.model('Book',bookSchema);
 
 export default Book;
-
-
-// popularity score function

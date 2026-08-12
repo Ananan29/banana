@@ -10,18 +10,22 @@ const chapterSchema=mongoose.Schema({
     title:{
         type:String,
         required:true,
+        trim:true,
     },
 
     order:{
         type:Number,
         required:true,
-        min :1
+        default:1,
+        min:1,
     },
 
     chapterNo:{
         type:Number,
-        min :1
+        min :1,
+        required:true,
     },
+
     content:{
        type:String,
         required:true, 
@@ -31,7 +35,7 @@ const chapterSchema=mongoose.Schema({
     versionKey: false,
 });
 
-
+chapterSchema.index({order:1});
 const Chapter=mongoose.model("Chapter",chapterSchema);
         
 

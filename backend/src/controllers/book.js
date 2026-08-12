@@ -2,7 +2,8 @@ import {
     getTopRated,
     getRecentlyAdded,
     getExcludedIds,
-    getRecentlyPublished
+    getRecentlyPublished,
+    getRecommendedBooks
 } from "../utils/functions.js";
 
 import OwnedBook from '../models/ownedBook.js';
@@ -13,11 +14,11 @@ import mongoose from "mongoose";
 
 export const recentlyPublished = async (req, res, next) => {
     try{
-        const limit = req.query.limit?.trim() ? Number(req.query.limit) : NaN;
-        const start = req.query.start?.trim() ? Number(req.query.start) : NaN;
+        const limit = Number(req.query.limit);
+        const start = Number(req.query.start);
 
 
-        if (Number.isNaN(limit) || Number.isNaN(start)) {
+        if (!Number.isInteger(limit) || !Number.isInteger(start) ||limit <= 0 ||start < 0 ) {
             return res.status(400).json({
                 message: "limit and start must be valid numbers"
             });
@@ -39,10 +40,10 @@ export const recentlyPublished = async (req, res, next) => {
 
 export const recentlyAdded = async (req, res, next) => {
     try{
-        const limit = req.query.limit?.trim() ? Number(req.query.limit) : NaN;
-        const start = req.query.start?.trim() ? Number(req.query.start) : NaN;
+        const limit = Number(req.query.limit);
+        const start = Number(req.query.start);
 
-        if (Number.isNaN(limit) || Number.isNaN(start)) {
+        if (!Number.isInteger(limit) || !Number.isInteger(start) ||limit <= 0 ||start < 0 ) {
             return res.status(400).json({
                 message: "limit and start must be valid numbers"
             });
@@ -65,10 +66,10 @@ export const recentlyAdded = async (req, res, next) => {
 
 export const topRated = async (req, res, next) => {
     try{
-        const limit = req.query.limit?.trim() ? Number(req.query.limit) : NaN;
-        const start = req.query.start?.trim() ? Number(req.query.start) : NaN;
+        const limit = Number(req.query.limit);
+        const start = Number(req.query.start);
 
-        if (Number.isNaN(limit) || Number.isNaN(start)) {
+        if (!Number.isInteger(limit) || !Number.isInteger(start) ||limit <= 0 ||start < 0 ) {
             return res.status(400).json({
                 message: "limit and start must be valid numbers"
             });
@@ -88,19 +89,39 @@ export const topRated = async (req, res, next) => {
     }
 };
 
-
-export const bookPage= async(req,res,next)=>{
+export const recommendedBooks=async (req, res, next) => {
     try{
-        const bookId=req.params.bookId;
-        if(!bookId?.trim()){
+        const limit = Number(req.query.limit);
+        const start = Number(req.query.start);
+        const userId=req.user.userId;
+
+        if (!Number.isInteger(limit) || !Number.isInteger(start) ||limit <= 0 ||start < 0 ) {
             return res.status(400).json({
-                message: "not valid bookid",
+                message: "limit and start must be valid numbers"
             });
         };
 
+        const excludedIds=await getExcludedIds(userId);
+
+        const {recommendedBooks,topGenres}=await getRecommendedBooks(limit,start,excludedIds,userId);
+        return res.status(200).json({
+            title:"Recommended-Books",
+            books:recommendedBooks,
+        });
+
+    }
+    catch(error){
+        next(error);
+    }
+};
+
+
+export const bookPage= async(req,res,next)=>{
+    try{
+        const bookId = req.params.bookId;
         if(!mongoose.Types.ObjectId.isValid(bookId)){
             return res.status(400).json({
-                message:"Invalid ID"
+                message: "not valid bookid",
             });
         };
 
@@ -110,13 +131,19 @@ export const bookPage= async(req,res,next)=>{
                 message: "book doesn't exist",
             });
         }
-        const {_id,...rest}=result.toObject();
+        const {_id,seriesId,authorId,...rest}=result.toObject();
+
+        const bookPayload = {
+            bookId: _id,
+            authorId: authorId?._id ?? null,
+            author: authorId?.name ?? null,
+            seriesId: seriesId?._id ?? null,
+            series: seriesId?.title ?? null,
+            ...rest,
+        };
 
         if(!req.user){
-            return res.status(200).json({
-                bookId:_id,
-                ...rest,
-            });
+            return res.status(200).json(bookPayload);
         }
 
         else{
@@ -126,11 +153,9 @@ export const bookPage= async(req,res,next)=>{
             const isFavourite=Boolean(Favourite);
 
             return res.status(200).json({
-                bookId:_id,
-                ...rest,
+                ...bookPayload,
                 isOwned,
                 isFavourite,
-
             });
 
         }
