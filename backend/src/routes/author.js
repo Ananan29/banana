@@ -1,5 +1,5 @@
 import express from 'express';
-import authorPage from '../controllers/author.js';
+import { authorPage } from '../controllers/author.js';
 
 const router=express.Router();
 

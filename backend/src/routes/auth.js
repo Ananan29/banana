@@ -1,5 +1,6 @@
 import express from 'express';
 import authMiddleware from '../middleware/auth.js';
+import { register, login } from '../controllers/user.js';
 
 const router=express.Router();
 
@@ -13,3 +14,5 @@ router.get('/me',authMiddleware,(req,res)=>{
         email: req.user.email,
     })
 });
+
+export default router;

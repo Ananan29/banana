@@ -9,18 +9,36 @@ const Discover = ({ LoggedIn }) => {
   useEffect(() => {
     const getBooks = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/api/dashboard/");
-        setBooksDetails(response.data.filter((genre) => genre.books.length!==0));
+        // console.log("discover", LoggedIn);
+        let response;
+        if (LoggedIn) {
+          const token = localStorage.getItem("authToken");
+          if (!token) {
+            setLoggedIn(false);
+            return;
+          }
+          response = await axios.get("http://localhost:5001/api/dashboard/personalized/", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+        }
+        else {
+          response = await axios.get("http://localhost:5001/api/dashboard/");
+        }
+        setBooksDetails(response.data.filter((genre) => genre.books.length !== 0));
+        // console.log(response.data);
+
       } catch (err) {
-        console.log(err);
+        console.log(err.message);
       }
     }
     getBooks();
-  }, [])
-  useEffect(() => {
-    console.log(BooksDetails);
-  }, [BooksDetails])
-  
+  }, [LoggedIn])
+  // useEffect(() => {
+  //   console.log(BooksDetails);
+  // }, [BooksDetails])
+
   return (
     <>
       gg
@@ -31,7 +49,7 @@ const Discover = ({ LoggedIn }) => {
       {
         BooksDetails.map((genre) => {
           return (
-            <BookScroll key={genre.title} Title={genre.title} PreBooks={genre.books}/>
+            <BookScroll key={genre.title} Title={genre.title} PreBooks={genre.books} />
           );
         })
       }

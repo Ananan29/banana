@@ -1,5 +1,8 @@
 
 
+import User from "../models/users.js";
+import generateToken from "../utils/generateToken.js";
+
 const register=async(req,res,next)=>{
     try{
         const{name,email,password}=req.body;
@@ -46,3 +49,5 @@ const login=async(req,res,next)=>{
     next(error);
       }
 };
+
+export { register, login };

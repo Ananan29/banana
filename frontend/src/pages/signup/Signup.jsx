@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import "./Signup.css";
 import axios from "axios";
 const Signup = ({ ShowAuth, setLoggedIn }) => {
@@ -58,6 +58,7 @@ const Signup = ({ ShowAuth, setLoggedIn }) => {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(password)) {
             if (!ShowLogin) setErrors(prev => ({ ...prev, password: "password must be at least 8 characters and must contain at least one digit (0-9), a lower case (a-z) and a upper case letter (A-Z)" }));
+            else setErrors(prev=>({...prev, submit: "Invalid email or password"}));
             hasError = true;
         }
         // #endregion
@@ -80,27 +81,25 @@ const Signup = ({ ShowAuth, setLoggedIn }) => {
             if (hasError) return;
             //#endregion
 
-            // send data to backend and see if account doesn"t already exist and say valid and move to login page
-            const valid = false;
             try {
-                const response = await axios.post("http://localhost:5001/api/auth/signup",
+                const response = await axios.post("http://localhost:5001/api/auth/register",
                     {
                         name: name,
                         email: email,
                         password: password
                     }
                 );
-                console.log(response.data);
-                // ShowLoginClicked();
+                ShowLoginClicked();
+                console.log("first");
             } catch (err) {
-                console.log(err);
-                setErrors(prev => ({ ...prev, submit: err.message }))
+                console.log(err.response?.data?.message);
+                setErrors(prev => ({ ...prev, submit: err.response?.data?.message||err.message }))
                 return;
             }
-            //
         }
         else {
             // log in:
+            if (hasError) return;
             // send data to backend and check if valid
             try {
                 const response = await axios.post("http://localhost:5001/api/auth/login",
@@ -109,17 +108,18 @@ const Signup = ({ ShowAuth, setLoggedIn }) => {
                         password: password
                     }
                 )
-                console.log(response.data);
-                // setLoggedIn(true);
-                // ShowAuth();
+                const token=response.data.token;
+                localStorage.setItem("authToken",token);
+                setLoggedIn(true);
+                ShowAuth();
 
             } catch (err) {
-                console.log(err);
-                setErrors(prev => ({ ...prev, submit: err.message }));
+                console.log(err.response?.data?.message);
+                setErrors(prev => ({ ...prev, submit: err.response?.data?.message||err.message }));
             }
-            //
         }
     }
+
     return (
         <>
             <div className="authentication-page">

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Book from "../models/book.js";
 import Series from "../models/series.js";
 

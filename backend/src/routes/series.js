@@ -1,11 +1,8 @@
 import express from 'express';
-import authMiddleware from '../middleware/auth.js';
+import { seriesPage } from '../controllers/series.js';
 
+const router = express.Router();
 
-
-const router =express.Router();
-
-router.get('/series',bookseries);
+router.get('/:seriesId', seriesPage);
 
 export default router;
-

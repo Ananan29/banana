@@ -7,6 +7,10 @@ import dashboardRouter from "./src/routes/dashboard.js";
 import libraryRouter from "./src/routes/library.js";
 import wishlistRouter from "./src/routes/wishlist.js";
 import searchRouter from "./src/routes/search.js";
+import authorRouter from "./src/routes/author.js";
+import seriesRouter from "./src/routes/series.js";
+import authRouter from "./src/routes/auth.js";
+import genresRouter from "./src/routes/genres.js";
 import errorMiddleware from "./src/middleware/error.js";
 
 const app = express();
@@ -26,6 +30,10 @@ app.use("/api/dashboard", dashboardRouter);
 app.use("/api/library", libraryRouter);
 app.use("/api/wishlist", wishlistRouter);
 app.use("/api/search", searchRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/author", authorRouter);
+app.use("/api/series", seriesRouter);
+app.use("/api/genres", genresRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({
