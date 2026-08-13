@@ -93,8 +93,6 @@
 
     font-size: .9rem;
     font-weight: 600;
-
-    margin-bottom: 12px;
 }
 .series-tag:hover{
     cursor: pointer;
@@ -103,7 +101,61 @@
 .author {
     font-size: 1.15rem;
     color: #555;
-    margin-bottom: 30px;
+    margin-bottom: 8px;
+}
+
+.book-rating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.avg-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8f2ff;
+    color: #6d28d9;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.avg-rating::before {
+    content: "★";
+    color: #f59e0b;
+    font-size: 0.95rem;
+}
+
+.ratings-count {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.book-rating.top-right {
+    position: absolute;
+    /* align vertically with title; show elements stacked */
+    top: 84px;
+    right: 20px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* align to right edge */
+    gap: 8px; /* small gap between avg and count */
+}
+
+.book-rating.top-right .ratings-count {
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1;
+    text-align: right;
+}
+
+.book-rating.top-right .avg-rating {
+    text-align: right;
 }
 
 .description h3,

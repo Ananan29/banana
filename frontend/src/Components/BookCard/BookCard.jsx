@@ -16,11 +16,10 @@ const BookCard = ({BookId, Source}) => {
     useEffect(() => {
       const GetBookDetails=async ()=>{
         try{
-            const response=await axios.get(`https://blue-coleman-assumptions-blocks.trycloudflare.com/api/books/${BookId}`);
-            // console.log(response.data);
+            const response=await axios.get(`http://localhost:5001/api/books/${BookId}`);
             setBookDetails({
                 title:response.data.title,
-                author:response.data.authorId.name,
+                author:response.data.author,
                 genre:response.data.genres,
                 coverImage:response.data.coverImage
             });
