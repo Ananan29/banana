@@ -1,5 +1,5 @@
 import React from "react"
-import { useState, useEffect } from "react";
+import { useState, useEffect,useCallback } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Discover from "./pages/Discover/Discover.jsx";
 import Library from "./pages/Library/Library.jsx";
@@ -8,9 +8,9 @@ import Navbar from "./components/Navbar/Navbar.jsx";
 import Wishlist from "./pages/Wishlist/Wishlist.jsx";
 import Cart from "./pages/Cart/Cart.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
-import BookPage from "./Components/BookPage/BookPage.jsx";
-import SeriesPage from "./Components/SeriesPage/SeriesPage.jsx";
-import AuthorPage from "./Components/AuthorPage/AuthorPage.jsx";
+import BookPage from "./pages/BookPage/BookPage.jsx";
+import SeriesPage from "./pages/SeriesPage/SeriesPage.jsx";
+import AuthorPage from "./pages/AuthorPage/AuthorPage.jsx";
 import OpenBookPage from "./pages/OpenBookPage/OpenBookPage.jsx";
 import axios from "axios";
 const App = () => {
@@ -21,9 +21,9 @@ const App = () => {
   const onShowAuth = () => {
     setShowAuth(prev => !prev);
   }
-  const onShowNavBar = (show) => {
+  const onShowNavBar = useCallback((show) => {
     setShowNavBar(show);
-  }
+  }, []);
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("authToken");
@@ -55,6 +55,10 @@ const App = () => {
       location.pathname.startsWith("/author/");
 
     document.body.style.background = isDetailPage ? "#fafafa" : "#ffffff";
+
+    if (!location.pathname.startsWith("/readbook")) {
+      setShowNavBar(true);
+    }
 
     return () => {
       document.body.style.background = "";

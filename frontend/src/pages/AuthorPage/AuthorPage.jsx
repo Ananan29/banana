@@ -22,7 +22,7 @@ const AuthorPage = () => {
             })
         }
         getAuthor();
-    }, [])
+    }, [AuthorId])
 
     return (
         <div>AuthorPage

@@ -14,7 +14,6 @@ const Discover = ({ LoggedIn }) => {
         if (LoggedIn) {
           const token = localStorage.getItem("authToken");
           if (!token) {
-            setLoggedIn(false);
             return;
           }
           response = await axios.get("http://localhost:5001/api/dashboard/personalized/", {

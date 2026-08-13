@@ -1,0 +1,338 @@
+.author-page {
+    display: flex;
+    justify-content: center;
+
+    min-height: 100vh;
+
+    padding: 50px 20px;
+
+    background: #fafafa;
+}
+
+.author-container {
+    position: relative;
+
+    width: min(1100px, 100%);
+    box-sizing: border-box;
+
+    padding: 56px;
+
+    background: white;
+    border-radius: 18px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+
+    display: flex;
+    gap: 50px;
+}
+
+/* =========================
+   LEFT
+========================= */
+
+.author-left {
+    width: 250px;
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.authorpage-profilepic {
+    width: 220px;
+    height: 220px;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* =========================
+   RIGHT
+========================= */
+
+.author-right {
+    flex: 1;
+    min-width: 0;
+}
+
+.authorpage-name {
+    font-size: 2.3rem;
+    font-weight: 700;
+
+    margin: 0 0 16px;
+
+    overflow-wrap: anywhere;
+}
+
+.authorpage-bio {
+    color: #555;
+
+    line-height: 1.8;
+
+    margin: 0 0 40px;
+
+    overflow-wrap: anywhere;
+}
+
+/* =========================
+   BOOKS
+========================= */
+
+.authorpage-series-section,
+.authorpage-standalones {
+    margin-top: 35px;
+}
+
+.authorpage-series-section h4,
+.authorpage-standalones h4 {
+    font-size: 1.35rem;
+
+    margin: 0 0 18px;
+}
+
+.authorpage-series,
+.authorpage-book {
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 16px;
+
+    margin-bottom: 16px;
+
+    border: 1px solid #ececec;
+    border-radius: 14px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.authorpage-series:hover,
+.authorpage-book:hover {
+    background: #f8f8f8;
+    transform: translateY(-2px);
+}
+
+.authorpage-series-pic,
+.authorpage-book-pic {
+    width: 60px;
+    height: 90px;
+
+    flex-shrink: 0;
+
+    object-fit: cover;
+
+    border-radius: 8px;
+}
+
+.authorpage-series-name,
+.authorpage-book-name {
+    flex: 1;
+    min-width: 0;
+
+    font-size: 1rem;
+    font-weight: 600;
+
+    overflow-wrap: anywhere;
+}
+
+.authorpage-series-length,
+.authorpage-book-length {
+    flex-shrink: 0;
+
+    color: #777;
+    font-size: 0.95rem;
+
+    white-space: nowrap;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 900px) {
+    .author-page {
+        padding: 30px 15px;
+    }
+
+    .author-container {
+        padding: 45px 35px;
+
+        gap: 35px;
+    }
+
+    .author-left {
+        width: 200px;
+    }
+
+    .authorpage-profilepic {
+        width: 180px;
+        height: 180px;
+    }
+
+    .authorpage-name {
+        font-size: 2rem;
+    }
+}
+
+/* =========================
+   SMALL TABLET
+========================= */
+
+@media (max-width: 700px) {
+    .author-page {
+        padding: 20px 12px;
+    }
+
+    .author-container {
+        width: 100%;
+
+        padding: 65px 25px 35px;
+
+        flex-direction: column;
+        align-items: center;
+
+        gap: 30px;
+    }
+
+    .author-left {
+        width: 100%;
+    }
+
+    .authorpage-profilepic {
+        width: 180px;
+        height: 180px;
+    }
+
+    .author-right {
+        width: 100%;
+    }
+
+    .authorpage-name {
+        font-size: 2rem;
+    }
+
+    .authorpage-bio {
+        margin-bottom: 30px;
+    }
+
+    .authorpage-series-section,
+    .authorpage-standalones {
+        margin-top: 28px;
+    }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 480px) {
+    .author-page {
+        padding: 10px;
+    }
+
+    .author-container {
+        border-radius: 14px;
+
+        padding: 58px 18px 30px;
+
+        gap: 25px;
+
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .authorpage-profilepic {
+        width: 150px;
+        height: 150px;
+    }
+
+    .authorpage-name {
+        font-size: 1.7rem;
+    }
+
+    .authorpage-bio {
+        font-size: 0.95rem;
+
+        line-height: 1.7;
+
+        margin-bottom: 28px;
+    }
+
+    .authorpage-series-section h4,
+    .authorpage-standalones h4 {
+        font-size: 1.1rem;
+    }
+
+    .authorpage-series,
+    .authorpage-book {
+        gap: 12px;
+
+        padding: 12px;
+
+        margin-bottom: 12px;
+    }
+
+    .authorpage-series-pic,
+    .authorpage-book-pic {
+        width: 50px;
+        height: 75px;
+    }
+
+    .authorpage-series-name,
+    .authorpage-book-name {
+        font-size: 0.9rem;
+    }
+
+    .authorpage-series-length,
+    .authorpage-book-length {
+        font-size: 0.8rem;
+    }
+}
+
+/* =========================
+   VERY SMALL PHONES
+========================= */
+
+@media (max-width: 360px) {
+    .author-container {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .authorpage-profilepic {
+        width: 130px;
+        height: 130px;
+    }
+
+    .authorpage-name {
+        font-size: 1.5rem;
+    }
+
+    .authorpage-bio {
+        font-size: 0.9rem;
+    }
+
+    .authorpage-book {
+        gap: 9px;
+        padding: 10px;
+    }
+
+    .authorpage-book-pic {
+        width: 45px;
+        height: 68px;
+    }
+
+    .authorpage-book-name {
+        font-size: 0.85rem;
+    }
+
+    .authorpage-book-length {
+        font-size: 0.75rem;
+    }
+}

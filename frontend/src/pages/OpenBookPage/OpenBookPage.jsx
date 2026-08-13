@@ -1,24 +1,28 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ownedbooks from "./../../data/ownedbooks.js";
+import Navbar from "../../Components/Navbar/Navbar.jsx";
 import "./OpenBookPage.css";
 
 const OpenBookPage = ({ onShowNavBar, ShowNavBar }) => {
     const {BookId}=useParams();
     const openbook=ownedbooks.find(book=>book.bookId===BookId);
+    const [readerNavVisible, setReaderNavVisible] = useState(false);
 
     const [currChapter, setcurrChapter] = useState(openbook.chapters[0]);
     const [currFont,setcurrFont]=useState(5);
     const [currChapterText, setcurrChapterText] = useState(openbook.chapterTexts[currChapter]);
     const [ShowOptions, setShowOptions] = useState(false);
-    const [Mode, setMode] = useState(0);
+    const [Mode, setMode] = useState(false);
     const [PageChangeMode, setPageChangeMode] = useState(0);
+    const [pageIndex, setPageIndex] = useState(0);
 
     const [ReadingProgress, setReadingProgress] = useState(
         JSON.parse(localStorage.getItem("readingProgress")) || {}
     );
 
     const navigate=useNavigate();
+    const optionsRef = useRef(null);
 
     const GoBack=()=>{
         navigate(-1);
@@ -65,6 +69,35 @@ const OpenBookPage = ({ onShowNavBar, ShowNavBar }) => {
         setMode(!Mode);
     }
 
+    const [readingMode, setReadingMode] = useState("scroll");
+
+    const toggleReadingMode = () => {
+        setReadingMode((prev) => prev === "scroll" ? "flip" : "scroll");
+        setPageIndex(0);
+    };
+
+    const chapterPages = currChapterText ? currChapterText.split(/\s+/).reduce((pages, word, index) => {
+        const pageIndexForWord = Math.floor(index / 120);
+
+        if (!pages[pageIndexForWord]) {
+            pages[pageIndexForWord] = [];
+        }
+
+        pages[pageIndexForWord].push(word);
+
+        return pages;
+    }, []).map((pageWords) => pageWords.join(" ")) : [""];
+
+    const currentPageText = chapterPages[pageIndex] || "";
+
+    const goToPreviousPage = () => {
+        setPageIndex((prev) => Math.max(prev - 1, 0));
+    };
+
+    const goToNextPage = () => {
+        setPageIndex((prev) => Math.min(prev + 1, chapterPages.length - 1));
+    };
+
     const increaseFont=()=>{
         if(currFont==10)return;
         setcurrFont(currFont+1);
@@ -76,9 +109,9 @@ const OpenBookPage = ({ onShowNavBar, ShowNavBar }) => {
     }
 
     useEffect(() => {
-        setcurrChapterText(
-            openbook.chapterTexts[currChapter]
-        );
+        const nextText = openbook.chapterTexts[currChapter] || "";
+        setcurrChapterText(nextText);
+        setPageIndex(0);
     }, [currChapter])
 
     useEffect(() => {
@@ -89,13 +122,43 @@ const OpenBookPage = ({ onShowNavBar, ShowNavBar }) => {
     }, []);
 
     useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (optionsRef.current && !optionsRef.current.contains(event.target)) {
+                setShowOptions(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    useEffect(() => {
         onShowNavBar(false);
+        setReaderNavVisible(false);
+
+        return () => {
+            onShowNavBar(true);
+        };
     }, []);
 
     const currentProgress = ReadingProgress[BookId] || 0;
 
+    const toggleReaderNav = () => {
+        setReaderNavVisible((prev) => !prev);
+    };
+
     return (
-        <div className="open-book-page">
+        <>
+            {readerNavVisible && (
+                <div style={{ position: "fixed", top: 0, left: 0, width: "100%", zIndex: 200 }}>
+                    <Navbar ShowAuth={() => {}} LoggedIn={true} />
+                </div>
+            )}
+
+            <div className={`open-book-page ${Mode ? "dark-mode" : ""}`}>
 
             {/* Header */}
 
@@ -140,12 +203,27 @@ const OpenBookPage = ({ onShowNavBar, ShowNavBar }) => {
                         Ask AI
                     </button>
 
-                    <button
-                        className="options-button"
-                        onClick={openOptions}
-                    >
-                        ⋮
-                    </button>
+                    <div className="reader-options-wrapper" ref={optionsRef}>
+                        <button
+                            className="options-button"
+                            onClick={openOptions}
+                        >
+                            ⋮
+                        </button>
+
+                        {ShowOptions && (
+                            <div className="reader-options-menu">
+                                <button
+                                    type="button"
+                                    className="reader-option-row"
+                                    onClick={toggleReadingMode}
+                                >
+                                    <span className="reader-option-label">Page change style:</span>
+                                    <span>{readingMode}</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
 
                 </div>
 
@@ -154,7 +232,7 @@ const OpenBookPage = ({ onShowNavBar, ShowNavBar }) => {
 
                 <button
                     className="navbar-button"
-                    onClick={() => onShowNavBar(!ShowNavBar)}
+                    onClick={toggleReaderNav}
                 >
                     ☰
                 </button>
@@ -225,20 +303,59 @@ const OpenBookPage = ({ onShowNavBar, ShowNavBar }) => {
 
                 {/* Current chapter */}
 
-                <div className="open-chapter">
+                <div className={`open-chapter ${readingMode === "page turn" ? "page-turn-mode" : ""}`}>
 
                     <p className="current-chapter">
                         {currChapter}
                     </p>
 
-                    <p
-                        className="chapter-text"
-                        style={{
-                            fontSize: `${12 + currFont}px`
-                        }}
-                    >
-                        {currChapterText}
-                    </p>
+                    {readingMode === "flip" ? (
+                        <div className="page-turn-reader">
+                            <div className="page-turn-panel">
+                                <p
+                                    className="chapter-text page-turn-text"
+                                    style={{
+                                        fontSize: `${12 + currFont}px`
+                                    }}
+                                >
+                                    {currentPageText}
+                                </p>
+                            </div>
+
+                            <div className="page-turn-controls">
+                                <button
+                                    type="button"
+                                    className="page-turn-arrow"
+                                    onClick={goToPreviousPage}
+                                    disabled={pageIndex === 0}
+                                >
+                                    ◀
+                                </button>
+
+                                <span className="page-turn-indicator">
+                                    {pageIndex + 1} / {chapterPages.length}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    className="page-turn-arrow"
+                                    onClick={goToNextPage}
+                                    disabled={pageIndex >= chapterPages.length - 1}
+                                >
+                                    ▶
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <p
+                            className="chapter-text"
+                            style={{
+                                fontSize: `${12 + currFont}px`
+                            }}
+                        >
+                            {currChapterText}
+                        </p>
+                    )}
 
                 </div>
 
@@ -270,7 +387,8 @@ const OpenBookPage = ({ onShowNavBar, ShowNavBar }) => {
 
             </div>
 
-        </div>
+            </div>
+        </>
     )
 }
 
