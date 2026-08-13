@@ -1,20 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AuthorDetails from "./../../data/authors.js";
 import SeriesDetails from "./../../data/series.js";
 import BookDetails from "./../../data/books.js";
 import "./AuthorPage.css";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 const AuthorPage = () => {
     const {AuthorId}=useParams();
-    const navigate=useNavigate();
-    const author=AuthorDetails.find((author)=>author.authorId===AuthorId);
-    console.log(author);
-    const books=BookDetails.filter((book)=>book.authorId===AuthorId&&book.seriesId===null)||[];
-    const series=SeriesDetails.filter((series)=>series.authorId===AuthorId)||[];
-    console.log(books);
+    // const navigate=useNavigate();
+    // const author=AuthorDetails.find((author)=>author.authorId===AuthorId);
+    // console.log(author);
+    // const books=BookDetails.filter((book)=>book.authorId===AuthorId&&book.seriesId===null)||[];
+    // const series=SeriesDetails.filter((series)=>series.authorId===AuthorId)||[];
+    // console.log(books);
+    useEffect(() => {
+      const getAuthor=async ()=>{
+        const response=await axios(`http://localhost:5001/api/${AuthorId}`);
+        console.log(response.data);
+      }
+      getAuthor();
+    }, [])
+    
   return (
     <div>AuthorPage
-        <div className="author-page">
+        {/* <div className="author-page">
             <div className="author-container">
                 <button className="back-button" onClick={()=>navigate(-1)}>{"﹤"}</button>
                 <div className="author-left">
@@ -61,7 +70,7 @@ const AuthorPage = () => {
                 }
                 </div>
             </div>  
-        </div>
+        </div> */}
     </div>
   )
 }
