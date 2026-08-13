@@ -4,7 +4,9 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "seed": "node seed.js",
-    "typesense:sync": "node syncTypesense.js"
+    "seed:chapters": "node seedChapters.js",
+    "typesense:sync": "node syncTypesense.js",
+    "typesense:sync-chunks": "node syncTypesenseChunks.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -13,6 +15,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.1",
+    "razorpay": "^2.9.8",
     "typesense": "^3.0.6",
     "zod": "^4.4.3"
   }

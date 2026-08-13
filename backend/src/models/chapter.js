@@ -35,7 +35,7 @@ const chapterSchema=mongoose.Schema({
     versionKey: false,
 });
 
-chapterSchema.index({order:1});
+chapterSchema.index({ bookId: 1, order: 1 }, { unique: true });
 const Chapter=mongoose.model("Chapter",chapterSchema);
         
 

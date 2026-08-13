@@ -165,7 +165,9 @@ export const getRecommendedBooks=async(limit,start,excludedIds,userId)=>{
     }
         
     //weights on each book
-    const books=await Book.find({_id:{$nin: excludedIds}}).select("title authorId coverImage genres seriesId");
+    const books=await Book.find({_id:{$nin: excludedIds}})
+                    .populate("authorId", "name")
+                    .select("title authorId coverImage genres seriesId");
     const result=[];
        
     for(const book of books){
@@ -174,7 +176,7 @@ export const getRecommendedBooks=async(limit,start,excludedIds,userId)=>{
             totalscore+=genreWeights[genre]||0;
         }
 
-        totalscore+=authorWeights[book.authorId]||0;
+        totalscore+=authorWeights[book.authorId._id]||0;
         if(book.seriesId){
             totalscore+=seriesWeights[book.seriesId]||0;
         }
@@ -188,7 +190,7 @@ export const getRecommendedBooks=async(limit,start,excludedIds,userId)=>{
     const recommendedBooks = result.slice(start, start + limit).map(item => ({
         bookId:item.book._id,
         title: item.book.title,
-        author: item.book.authorId,
+        author: item.book.authorId.name,
         coverImage: item.book.coverImage
     }));
     

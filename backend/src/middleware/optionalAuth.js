@@ -15,7 +15,7 @@ const optionalAuthMiddleware = async (req, res, next) => {
       req.user = { userId: user._id, ...user.toObject() };
     }
   } catch {
-    // bad/expired token → treat as guest, don't 401
+  // bad/expired token → treat as guest, don't 401
   }
   next();
 };

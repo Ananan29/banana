@@ -7,11 +7,15 @@ import dashboardRouter from "./src/routes/dashboard.js";
 import libraryRouter from "./src/routes/library.js";
 import wishlistRouter from "./src/routes/wishlist.js";
 import searchRouter from "./src/routes/search.js";
+import qaRouter from "./src/routes/qa.js";
 import authorRouter from "./src/routes/author.js";
 import seriesRouter from "./src/routes/series.js";
-import authRouter from "./src/routes/auth.js";
 import genresRouter from "./src/routes/genres.js";
-import errorMiddleware from "./src/middleware/error.js";
+import authRouter from "./src/routes/auth.js";
+import cartRouter from "./src/routes/cart.js";
+import paymentRouter from "./src/routes/payment.js";
+import { razorpayWebhook } from "./src/controllers/payment.js";
+import errorMiddleware, { notFound } from "./src/middleware/error.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,17 +27,27 @@ app.use(
   })
 );
 
+// Razorpay needs the raw body for webhook signature verification
+app.post(
+  "/api/webhooks/razorpay",
+  express.raw({ type: "application/json" }),
+  razorpayWebhook
+);
+
 app.use(express.json());
 
-app.use("/api/books", bookRouter);
+app.use("/api/book", bookRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/library", libraryRouter);
 app.use("/api/wishlist", wishlistRouter);
 app.use("/api/search", searchRouter);
-app.use("/api/auth", authRouter);
+app.use("/api/qa", qaRouter);
 app.use("/api/author", authorRouter);
 app.use("/api/series", seriesRouter);
-app.use("/api/genres", genresRouter);
+app.use("/api/genre", genresRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/payment", paymentRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -42,12 +56,7 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.use((req, res) => {
-  res.status(404).json({
-    message: `Cannot ${req.method} ${req.originalUrl}`,
-  });
-});
-
+app.use(notFound);
 app.use(errorMiddleware);
 
 const start = async () => {
@@ -58,4 +67,7 @@ const start = async () => {
   });
 };
 
-start();
+start().catch((error) => {
+  console.error("Failed to start server:", error.message || error);
+  process.exit(1);
+});

@@ -15,9 +15,9 @@ export const searchBooks = async (req, res,next) => {
                 .documents()
                 .search({
                     q: q.trim(),
-                    query_by: "title,author",
+                    query_by: "title,author,genres,description",
                     per_page: 10,
-                    sort_by: "_text_match:desc,popularityScore:desc"  //knwo more about this 
+                    sort_by: "_text_match:desc,popularityScore:desc",
                 });
 
         const books = results.hits.map((hit) => hit.document);

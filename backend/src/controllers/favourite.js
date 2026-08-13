@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
-import FavouriteBook from "../models/favourite.js";
+import OwnedBook from '../models/ownedBook.js';
+import FavouriteBook from '../models/favourite.js';
+import Book from '../models/book.js';
 
 export const createfav=async(req,res,next)=>{
     try{
@@ -12,11 +14,15 @@ export const createfav=async(req,res,next)=>{
             });
         };
 
-        const existing = await FavouriteBook.findOne({userId,bookId});
+        const [owned,book] = await Promise.all([
 
-        if (existing) {
+            OwnedBook.findOne({ userId, bookId }),
+            Book.findById(bookId),
+        ]);
+
+        if (owned || !book) {
             return res.status(409).json({
-                message: "Book is already in favourites"
+                message: "Book either owned or not exists "
             });
         }
 
@@ -68,7 +74,7 @@ export const deletefav=async(req,res,next)=>{
         const bookId=req.params.bookId;
         const userId=req.user.userId;
             
-        if(!bookId?.trim() || !mongoose.Types.ObjectId.isValid(bookId)){
+        if(!mongoose.Types.ObjectId.isValid(bookId)){
             return res.status(400).json({
                 message: "not valid bookid",
             });

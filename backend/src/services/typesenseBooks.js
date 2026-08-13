@@ -1,5 +1,6 @@
 import typesense from "../config/typesense.js";
-import Book from "../models/Book.js";
+import Book from "../models/book.js";
+import "../models/author.js";
 
 const booksSchema = {
   name: "books",
@@ -13,35 +14,41 @@ const booksSchema = {
 };
 
 export const createBooksCollection = async () => {
-    try {
-        await typesense.collections().create(booksSchema);
-    }
-    catch (error){
-        console.log(error);
-    }
+  const collections = await typesense.collections().retrieve();
+  const exists = collections.some((c) => c.name === "books");
+  if (exists) return;
+  await typesense.collections().create(booksSchema);
 };
 
 export const indexBooks = async () => {
-    try {
-        const books = await Book.find().populate("authorId", "name");
+  const books = await Book.find().populate("authorId", "name");
 
-        const documents = books.map((book) => ({
-            id: book._id.toString(),
-            title: book.title,
-            author: book.authorId.name,
-            genres: book.genres,
-            description: book.description,
-            popularityScore: book.popularityScore,
-        }));
+  const documents = books
+    .filter((book) => book.authorId?.name)
+    .map((book) => ({
+      id: book._id.toString(),
+      title: book.title,
+      author: book.authorId.name,
+      genres: book.genres,
+      description: book.description || "",
+      popularityScore: book.popularityScore || 0,
+    }));
 
-        if (documents.length > 0) {
-            await typesense
-                .collections("books")
-                .documents()
-                .import(documents, { action: "upsert" });
-        }
-    } 
-    catch (error) {
-        console.log("Indexing error:", error);
-    }
+  if (documents.length === 0) {
+    console.log("No books to index");
+    return 0;
+  }
+
+  await typesense
+    .collections("books")
+    .documents()
+    .import(documents, { action: "upsert" });
+
+  return documents.length;
+};
+
+export const syncBooksToTypesense = async () => {
+  await createBooksCollection();
+  const count = await indexBooks();
+  console.log(`Typesense synced ${count} books`);
 };

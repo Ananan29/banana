@@ -1,15 +1,14 @@
 import "dotenv/config";
 import mongoose from "mongoose";
-import "./src/models/author.js";
-import { syncBooksToTypesense } from "./src/services/typesenseBooks.js";
+import { syncChapterChunksToTypesense } from "./src/services/typesenseChunks.js";
 
 const run = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("MongoDB connected");
-    await syncBooksToTypesense();
+    await syncChapterChunksToTypesense();
   } catch (error) {
-    console.error("Typesense sync failed:", error.message || error);
+    console.error("Typesense chunk sync failed:", error.message || error);
     process.exitCode = 1;
   } finally {
     await mongoose.disconnect();

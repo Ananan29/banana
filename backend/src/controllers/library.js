@@ -108,7 +108,13 @@ export const readBook=async(req,res,next)=>{
                 {book.readingOrder.currentOrder=1;book.status="reading";await book.save();}
 
             const result=await Chapter.findOne({bookId, order:book.readingOrder.currentOrder}).select("order chapterNo title content -_id").lean();
-        
+
+            if (!result) {
+                return res.status(404).json({
+                    message: "Chapter not found"
+                });
+            }
+               
             return res.status(200).json({
                 ...result,
                 totalOrder:book.readingOrder.totalOrder,

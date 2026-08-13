@@ -11,7 +11,10 @@ const ownedBookSchema=new mongoose.Schema({
             ref: "Book",
             required: true},
 
-    transactionId:{},
+    transactionId: {
+      type: String,
+      trim: true,
+    },
     
     status:{
         type: String,

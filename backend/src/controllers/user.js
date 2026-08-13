@@ -1,53 +1,73 @@
-
-
+import { registerSchema, loginSchema } from "../validators/auth.validator.js";
 import User from "../models/users.js";
 import generateToken from "../utils/generateToken.js";
 
-const register=async(req,res,next)=>{
-    try{
-        const{name,email,password}=req.body;
+export const register = async (req, res, next) => {
+  try {
+    const result = registerSchema.safeParse(req.body);
 
-        const exists = await User.findOne({ email });
-        if (exists) {
-            return res.status(400).json({ message: 'Email already registered' });
-        }
-    
-        const user = await User.create({ name, email, password });
-
-        res.status(201).json({
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          token: generateToken(user._id),
-        });
+    if (!result.success) {
+      return res.status(400).json({
+        message: "Invalid data",
+        errors: result.error.flatten().fieldErrors,
+      });
     }
 
-    catch (error)
-        {next(error);}
+    const { name, email, password } = result.data;
 
+    const exists = await User.findOne({ email });
+
+    if (exists) {
+      return res.status(409).json({
+        message: "Email already registered",
+      });
+    }
+
+    const user = await User.create({
+      name,
+      email,
+      password,
+    });
+
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-const login=async(req,res,next)=>{
-    try {const{email,password}=req.body;
-    
-    if(!email||!password)
-    {return res.status(400).json({message:"invalid data sent"});}
+export const login = async (req, res, next) => {
+  try {
+    const result = loginSchema.safeParse(req.body);
 
-    const user=await User.findOne({email}).select('+password');
+    if (!result.success) {
+      return res.status(400).json({
+        message: "Invalid data",
+        errors: result.error.flatten().fieldErrors,
+      });
+    }
 
-    if(!user || !(await user.matchPassword(password)))
-    {return res.status(401).json({ message: 'Invalid email or password' });}
+    const { email, password } = result.data;
+
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user || !(await user.matchPassword(password))) {
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
 
     res.json({
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          token: generateToken(user._id),
-        });
-      } 
-    catch (error) {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
     next(error);
-      }
+  }
 };
-
-export { register, login };
