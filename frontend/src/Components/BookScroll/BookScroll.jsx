@@ -7,7 +7,6 @@ import axios from "axios";
 
 const BookScroll = ({ Title, PreBooks }) => {
     const [Start, setStart] = useState(0);
-
     // for number of cards
     const [visibleCards, setVisibleCards] = useState(5);
 
@@ -71,12 +70,13 @@ const BookScroll = ({ Title, PreBooks }) => {
         };
     }, [HasMore]);
 
+  const API_URL = import.meta.env.VITE_API_URL;
     const loadMore = async () => {
         try {
             setLoading(true);
             const start = BooksDetails.length;
             const limit = Math.max(visibleCards + 2, 6);
-            const response = await axios.get(`http://localhost:5001/api/books/${Title}?limit=${limit}&start=${start}`);
+            const response = await axios.get(`${API_URL}/book/${Title}?limit=${limit}&start=${start}`);
             const books = response.data.books || [];
             setHasMore(books.length >= limit - 1);
             if (books.length > 0) {
@@ -128,6 +128,15 @@ const BookScroll = ({ Title, PreBooks }) => {
         if (!PreBooks || PreBooks.length === 0) loadMore();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [Title, visibleCards]);
+
+    // Ensure we attempt an initial load on mount when no PreBooks provided.
+    useEffect(() => {
+        if ((!PreBooks || PreBooks.length === 0) && BooksDetails.length === 0) {
+            // fire-and-forget; loadMore will update state when complete
+            loadMore();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div className="book-scroll-section">

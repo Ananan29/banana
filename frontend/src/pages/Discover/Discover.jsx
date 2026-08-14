@@ -9,7 +9,7 @@ const Discover = ({ LoggedIn }) => {
   useEffect(() => {
     const getBooks = async () => {
       try {
-        // console.log("discover", LoggedIn);
+        console.log("discover", LoggedIn);
         let response;
         if (LoggedIn) {
           const token = localStorage.getItem("authToken");
@@ -25,8 +25,8 @@ const Discover = ({ LoggedIn }) => {
         else {
           response = await axios.get("http://localhost:5001/api/dashboard/");
         }
+        console.log(response.data);
         setBooksDetails(response.data.filter((genre) => genre.books.length !== 0));
-        // console.log(response.data);
 
       } catch (err) {
         console.log(err.message);

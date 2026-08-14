@@ -29,7 +29,7 @@ const BookPage = ({ LoggedIn, onShowAuth }) => {
     useEffect(() => {
         const GetBookDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:5001/api/books/${BookId}`);
+                const response = await axios.get(`http://localhost:5001/api/book/${BookId}`);
                 console.log(response.data);
                 setBookDetails({
                     title: response.data.title,

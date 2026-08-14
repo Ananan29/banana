@@ -16,7 +16,7 @@ const BookCard = ({ BookId, Source }) => {
     useEffect(() => {
         const GetBookDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:5001/api/books/${BookId}`);
+                const response = await axios.get(`http://localhost:5001/api/book/${BookId}`);
                 setBookDetails({
                     title: response.data.title,
                     author: response.data.author,
