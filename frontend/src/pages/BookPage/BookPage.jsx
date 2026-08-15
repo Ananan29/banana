@@ -18,18 +18,24 @@ const BookPage = ({ LoggedIn, onShowAuth }) => {
         seriesId: 0,
         totalChapters: 1,
         language: "English",
-        price: 6.99,
+        price: null,
         publishedAt: "",
         averageRating: 0,
         ratingsCount: 0,
         isinCart:false,
         isinWishlist:false,
         bookOwned:false,
+        seriesBookNumber:0
     });
     useEffect(() => {
         const GetBookDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:5001/api/book/${BookId}`);
+                const token=localStorage.getItem("authToken");
+                const response = await axios.get(`http://localhost:5001/api/book/${BookId}`,{
+                        headers:{
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
                 console.log(response.data);
                 setBookDetails({
                     title: response.data.title,
@@ -47,9 +53,11 @@ const BookPage = ({ LoggedIn, onShowAuth }) => {
                     averageRating: response.data.averageRating,
                     ratingsCount: response.data.ratingsCount,
                     isinCart:false,
-                    isinWishlist:false,
-                    bookOwned:false,
+                    isinWishlist:response.data.isFavourite||false,
+                    bookOwned:response.data.isOwned||false,
+                    seriesBookNumber:response.data.seriesNo
                 });
+                console.log(response.data);
             } catch (err) {
                 console.log(err.message);
             }
@@ -68,13 +76,42 @@ const BookPage = ({ LoggedIn, onShowAuth }) => {
         if (!LoggedIn) onShowAuth();
         else {
             //push to cart
+            const insertCart=async()=>{
+                console.log("first")
+                try{
+                    const token=localStorage.getItem("authToken");
+                    const response=await axios.post(`http://localhost:5001/api/cart/${BookId}`,{},{
+                        headers:{
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    console.log(response.data);
+                }catch(err){
+                    console.log(err.message);
+                }
+            }
+            insertCart();
             window.location.reload();
         }
     }
-    const WishlistClicked = () => {
+    const WishlistClicked =() => {
         if (!LoggedIn) onShowAuth();
         else {
             //push to wishlist
+            const insertWishlist=async()=>{
+                try{
+                    const token=localStorage.getItem("authToken");
+                    const response=await axios.post(`http://localhost:5001/api/wishlist/${BookId}`,{},{
+                        headers:{
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    console.log(response.data);
+                }catch(err){
+                    console.log(err.message);
+                }
+            }
+            insertWishlist()
             window.location.reload();
         }
     }
@@ -133,12 +170,12 @@ const BookPage = ({ LoggedIn, onShowAuth }) => {
                                 ) : (
                                     <div className="book-buy-wishlist-buttons">
                                         <button className="buy-btn" onClick={BuyClicked}>
-                                            Buy ${BookDetails.price}
+                                            Buy Rs.{BookDetails.price}
                                         </button>
                                         {
                                             BookDetails.isinWishlist ? (
                                                 <button className="wishlist-btn" onClick={GoToWishlist}>
-                                                    Go To Wishlist
+                                                    ❤️ Go To Wishlist
                                                 </button>
                                             ) : (
                                                 <button className="wishlist-btn" onClick={WishlistClicked}>

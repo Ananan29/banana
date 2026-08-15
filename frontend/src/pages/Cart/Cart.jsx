@@ -3,85 +3,104 @@ import "./Cart.css";
 import BookDetails from "./../../data/books.js";
 import SeriesDetails from "./../../data/series.js"
 import { useNavigate } from "react-router-dom";
-const Cart = ({LoggedIn}) => {
-    const [CartBooks, setCartBooks] = useState(JSON.parse(localStorage.getItem("BooksInCart")))||[];
-    const [TotalPrice, setTotalPrice] = useState(0);
-    const navigate=useNavigate();
-    useEffect(()=>{
-      let totalprice=0;
-      for(let i=0;i<CartBooks.length;i++){
-        const book=BookDetails.find(x=>(x.bookId===(CartBooks[i])));
-        totalprice+=(book.bookPrice);
+import axios from "axios";
+const Cart = ({ LoggedIn }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
+  const [CartBooks, setCartBooks] = useState([]);
+  const navigate = useNavigate();
+  const RemoveBook = async(bookId) => {
+    try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          return;
+        }
+        const response = await axios.delete(`${API_URL}/cart/${bookId}`,{
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log(response.data);
+        setCartBooks(response.data);
+      } catch (err) {
+        console.log(err.message);
       }
-      setTotalPrice(totalprice);
-    },[]);
-    const RemoveBook=(BookId)=>{
-      let books=CartBooks;
-      books=books.filter(bookId=>bookId!==BookId);
-      localStorage.setItem("BooksInCart",JSON.stringify(books));
       window.location.reload();
-    }
-    const AddToWishlist=(BookId)=>{
-      console.log(BookId);
-      const existingBooks=localStorage.getItem("BooksInWishlist");
-      let wishlistBooks=JSON.parse(existingBooks);
-      if(wishlistBooks===null)wishlistBooks=[];
-      if(!wishlistBooks.includes(BookId)){
-          wishlistBooks.push(BookId);
-          localStorage.setItem("BooksInWishlist", JSON.stringify(wishlistBooks));
+  }
+  const AddToWishlist = async(bookId) => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.post(`http://localhost:5001/api/wishlist/${BookId}`, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log(response.data);
+      } catch (err) {
+        console.log(err.message);
       }
-      RemoveBook(BookId);
-    }
-    const OpenBookPage=(BookId)=>{
-      navigate(`/book/${BookId}`,{state:{from:"/cart"}});
-    }
-    const ProceedToPayment=()=>{
-      let ownedBooks = JSON.parse(localStorage.getItem("ownedBooks")) || [];
-      let wishlistBooks = JSON.parse(localStorage.getItem("BooksInWishlist")) || [];
-      let topurchase=[...ownedBooks];
-      let wishlist=[...wishlistBooks];
-      console.log(topurchase);
-      for(let i=0;i<CartBooks.length;i++){
-        if(!ownedBooks.includes(CartBooks[i]))topurchase.push(CartBooks[i]);
+
+    RemoveBook(bookId);
+
+    window.location.reload();
+
+  }
+  const OpenBookPage = (BookId) => {
+    navigate(`/book/${BookId}`, { state: { from: "/cart" } });
+  }
+  const ProceedToPayment = () => {
+    // navigate to payment page and pass cart data
+    navigate("/payment", { state: { cart: CartBooks } });
+  }
+  useEffect(() => {
+    const getCartBooks = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          return;
+        }
+        const response = await axios.get(`${API_URL}/cart/`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log(response.data);
+        setCartBooks(response.data);
+      } catch (err) {
+        console.log(err.message);
       }
-      wishlist = wishlistBooks.filter(
-        book => !CartBooks.includes(book)
-      );
-      localStorage.setItem("ownedBooks",JSON.stringify(topurchase));
-      localStorage.setItem("BooksInWishlist", JSON.stringify(wishlist));
-      localStorage.setItem("BooksInCart",JSON.stringify([]));
-      navigate("/library");
     }
+    getCartBooks();
+  }, [])
   return (
     <div>Cart
-      {!LoggedIn?(
+      {!LoggedIn ? (
         <p>log in to access this feauture</p>
-      ):(
-        CartBooks.length===0?(
+      ) : (
+        CartBooks.length === 0 ? (
           <p>Add books</p>
-        ):(
-        <div className="cart">
-          {
-            CartBooks.map(bookId=>{
-              const currBook=BookDetails.find(bookDetails=>bookDetails.bookId===(bookId));
-              const currSeries=SeriesDetails.find(seriesDetails=>seriesDetails.seriesId===currBook.seriesId);
-              return(
-                <div key={bookId} className="buy-book-card">
-                  <img className="cart-book-image" src={currBook?.coverImage}/>
-                  <p className="cart-book-name" onClick={()=>OpenBookPage(bookId)}>{currBook?.title}</p>
-                  <p className="cart-book-author">{currBook?.author}</p>
-                  <p className="cart-book-series">{currSeries?.seriesName}{currBook?.seriesBookNumber?" #":""}{currBook?.seriesBookNumber}</p>
-                  <button className="cart-wishlist-button" onClick={()=>AddToWishlist(bookId)}>Move to Wishlist</button>
-                  <p className="cart-book-price">{currBook?.bookPrice}</p>
-                  <button className="remove-book-button" onClick={()=>RemoveBook(bookId)}>×</button>
-                </div>
-              );
-            })
-          }
-          <p className="cart-total-price">{TotalPrice}</p>
-          <button className="cart-payment-button" onClick={ProceedToPayment}>Proceed to payment</button>
-        </div>
-      ))}
+        ) : (
+          <div className="cart">
+            {
+              CartBooks.books?.map(book => {
+                // const currSeries = SeriesDetails.find(seriesDetails => seriesDetails.seriesId === currBook.seriesId);
+                return (
+                  <div key={book.bookId} className="buy-book-card">
+                    <img className="cart-book-image" src={book.coverImage} />
+                    <p className="cart-book-name" onClick={() => OpenBookPage(book.bookId)}>{book.title}</p>
+                    <p className="cart-book-author">{book.author}</p>
+                    <p className="cart-book-series"></p>
+                    {/* <p className="cart-book-series">{currSeries?.seriesName}{book.seriesBookNumber ? " #" : ""}{book.seriesBookNumber}</p> */}
+                    <button className="cart-wishlist-button" onClick={() => AddToWishlist(book.bookId)}>Move to Wishlist</button>
+                    <p className="cart-book-price">{book.bookPrice}</p>
+                    <button className="remove-book-button" onClick={() => RemoveBook(book.bookId)}>×</button>
+                  </div>
+                );
+              })
+            }
+            <p className="cart-total-price">{CartBooks.total}</p>
+            <button className="cart-payment-button" onClick={ProceedToPayment}>Proceed to payment</button>
+          </div>
+        ))}
     </div>
   )
 }

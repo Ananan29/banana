@@ -112,6 +112,7 @@ const Signup = ({ ShowAuth, setLoggedIn }) => {
                 localStorage.setItem("authToken",token);
                 setLoggedIn(true);
                 ShowAuth();
+                window.location.reload();
 
             } catch (err) {
                 console.log(err.response?.data?.message);

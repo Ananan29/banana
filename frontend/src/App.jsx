@@ -12,6 +12,7 @@ import BookPage from "./pages/BookPage/BookPage.jsx";
 import SeriesPage from "./pages/SeriesPage/SeriesPage.jsx";
 import AuthorPage from "./pages/AuthorPage/AuthorPage.jsx";
 import OpenBookPage from "./pages/OpenBookPage/OpenBookPage.jsx";
+import PaymentPage from "./pages/Payment/Payment.jsx";
 import axios from "axios";
 const App = () => {
   const location = useLocation();
@@ -81,6 +82,7 @@ const App = () => {
         <Route path="/series/:SeriesId" element={<SeriesPage />} />
         <Route path="/author/:AuthorId" element={<AuthorPage />} />
         <Route path="readbook/:BookId" element={<OpenBookPage onShowNavBar={onShowNavBar} />} />
+        <Route path="/payment" element={<PaymentPage LoggedIn={LoggedIn} />} />
       </Routes>
     </>
   )

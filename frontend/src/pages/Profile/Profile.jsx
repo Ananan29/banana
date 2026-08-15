@@ -5,6 +5,7 @@ import "./Profile.css";
 
 const Profile = ({ LoggedIn, setLoggedIn }) => {
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const logOutClicked = () => {
     localStorage.removeItem("authToken");
@@ -42,7 +43,35 @@ const Profile = ({ LoggedIn, setLoggedIn }) => {
       getUser();
     }
   }, [LoggedIn, setLoggedIn]);
-
+  const [cart,setcart]=useState(0);
+  const [wishlist,setwishlist]=useState(0);
+useEffect(() => {
+    const getCartBooks = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          return;
+        }
+        const response = await axios.get(`${API_URL}/cart/`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log(response.data);
+        setcart(response.data.books.length);
+        const response2 = await axios.get(`${API_URL}/wishlist/`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log(response2.data);
+        setwishlist(response2.data.length);
+      } catch (err) {
+        console.log(err.message);
+      }
+    }
+    getCartBooks();
+  }, [])
   return (
     <div className="profile-page">
       {!LoggedIn ? (
@@ -100,11 +129,11 @@ const Profile = ({ LoggedIn, setLoggedIn }) => {
                 <h3>Quick stats</h3>
                 <div className="profile-stat-grid">
                   <div className="profile-stat" onClick={()=>navigate("/library")}>
-                    <strong>0</strong>
+                    <strong>{cart}</strong>
                     <span>Owned books</span>
                   </div>
                   <div className="profile-stat" onClick={()=>navigate("/wishlist")}>
-                    <strong>0</strong>
+                    <strong>{wishlist}</strong>
                     <span>Wishlist</span>
                   </div>
                 </div>

@@ -35,8 +35,9 @@ export const libraryPage=async(req,res,next)=>{
         const userId=req.user.userId;
 
         const result  =await Promise.all([
-            getUserBooks(1,0,userId,"reading"),
+            getUserBooks(10,0,userId,"reading"),
             getUserBooks(10,0,userId,"owned"),
+            getUserBooks(10, 0, userId, "completed"),
         ]);
 
         return res.status(200).json([
@@ -45,6 +46,10 @@ export const libraryPage=async(req,res,next)=>{
 
             {title:"owned",
             books:result[1]},
+            {
+                title: "completed",
+                books: result[2],
+            },
         ]);
     }
     catch(error){

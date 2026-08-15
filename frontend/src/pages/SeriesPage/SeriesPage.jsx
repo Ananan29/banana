@@ -42,7 +42,7 @@ const SeriesPage = () => {
         )
     }
     const OpenAuthorPage=()=>{
-        navigate(`/author/${Series.authorId}`);
+        // navigate(`/author/${Series.authorId}`);
     }
     return (
         <div>SeriesPage
