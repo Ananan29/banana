@@ -1,4 +1,5 @@
-// Real-world seed catalog: authors, series, and exactly 100 books.
+// Real-world seed catalog: authors, series, and 100 base books.
+// 50 more titles live in extraCatalog.js.
 // Each schema genre appears on at least 4 books.
 
 export const authorsData = [

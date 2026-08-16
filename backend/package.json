@@ -5,6 +5,8 @@
     "dev": "node --watch server.js",
     "seed": "node seed.js",
     "seed:chapters": "node seedChapters.js",
+    "seed:pride": "node seedPrideChapters.js",
+    "seed:more": "node seedMoreBooks.js",
     "typesense:sync": "node syncTypesense.js",
     "typesense:sync-chunks": "node syncTypesenseChunks.js"
   },

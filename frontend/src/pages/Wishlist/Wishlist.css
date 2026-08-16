@@ -2,7 +2,7 @@
     width: min(1200px, 95%);
     margin: 0 auto;
 
-    padding: 50px 0 70px;
+    padding: 10px 0 70px;
 
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -13,16 +13,16 @@
 
 .wishlist-book-card {
     position: relative;
-
+    width: 180px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .wishlist-button {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 10px;
+    right: 10px;
 
     width: 38px;
     height: 38px;
@@ -56,4 +56,19 @@
     transform: scale(1.1);
     background: #fff;
     color: #dc2626;
+}
+
+.wishlist-add-cart {
+    margin-top: 8px;
+    border: none;
+    border-radius: 999px;
+    background: #111827;
+    color: white;
+    padding: 8px 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.wishlist-add-cart:hover {
+    background: #7c3aed;
 }

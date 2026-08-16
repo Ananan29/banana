@@ -3,6 +3,7 @@ import OwnedBook from "../models/ownedBook.js";
 import FavouriteBook from "../models/favourite.js";
 import Cart from "../models/cart.js";
 import Payment from "../models/payment.js";
+import { getBookReadingLength } from "../utils/functions.js";
 
 
 export const fulfillPaidOrder = async ({
@@ -44,6 +45,7 @@ export const fulfillPaidOrder = async ({
   for (const bookId of payment.bookIds) {
     const book = bookMap.get(bookId.toString());
     if (!book) continue;
+    const totalOrder = await getBookReadingLength(bookId);
 
     await OwnedBook.updateOne(
       { userId: payment.userId, bookId },
@@ -55,7 +57,7 @@ export const fulfillPaidOrder = async ({
           status: "owned",
           readingOrder: {
             currentOrder: 1,
-            totalOrder: book.totalChapters,
+            totalOrder,
           },
         },
       },

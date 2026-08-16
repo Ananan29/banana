@@ -1,200 +1,73 @@
-/* .BookCard {
-    width: 220px;
-    height: 320px;
-    border-radius: 14px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.BookCard:hover {
-    transform: scale(1.05);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-}
-
-.bookcard-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.bookcard-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.bookdetails-text {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    height: 120px;
-    padding: 16px;
-
-    box-sizing: border-box;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 6px;
-
-    background: linear-gradient(
-        to top,
-        rgba(0, 0, 0, 0.95),
-        rgba(0, 0, 0, 0.75),
-        transparent
-    );
-
-    opacity: 0;
-    transition: opacity 0.25s ease;
-}
-
-.BookCard:hover .bookdetails-text {
-    opacity: 1;
-}
-
-.bookdetails-text p {
-    margin: 0;
-}
-
-.bookCard-Name {
-    color: white;
-    font-size: 1.05rem;
-    font-weight: 700;
-
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-}
-
-.bookCard-Author {
-    color: #e6e6e6;
-    font-size: 0.9rem;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.bookCard-Genre {
-    color: #cfcfcf;
-    font-size: 0.8rem;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-} */
-
 .BookCard {
-    width: 220px;
-    height: 320px;
-    position: relative;
-    overflow: hidden;
-    border-radius: 14px;
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.BookCard:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-}
-
-.bookcard-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.bookcard-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.bookdetails-text {
-    position: absolute;
-    inset: 0;
-
-    background: rgba(0, 0, 0, 0.72);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-
-    padding: 16px;
-    box-sizing: border-box;
-
-    opacity: 0;
-    transition: opacity 0.3s ease;
-
-    overflow: hidden;
-}
-
-.BookCard:hover .bookdetails-text {
-    opacity: 1;
-}
-
-.bookdetails-text p {
-    margin: 0;
-}
-
-.bookCard-Name {
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-
-    overflow: hidden;
-}
-
-.bookCard-Author {
-    color: #e8e8e8;
-    font-size: 0.9rem;
-    margin-bottom: 6px;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.bookCard-Genre {
-    color: #cfcfcf;
-    font-size: 0.85rem;
-
-    /* display: inline; */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.BookCard {
+    width: 180px;
     flex: 0 0 auto;
     position: relative;
     z-index: 1;
+    cursor: pointer;
+    background: transparent;
 }
 
-.BookCard:hover {
-    transform: scale(1.08);
-    z-index: 10;
+.bookcard-container {
+    width: 100%;
 }
 
-.BookCard:hover,
-.wishlist-book-card:hover .BookCard {
-    transform: scale(1.08);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-    z-index: 10;
+.bookcard-container img,
+.bookcard-fallback {
+    width: 180px;
+    height: 270px;
+    object-fit: cover;
+    display: block;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(28, 25, 23, 0.14);
+    transition: transform 0.2s ease;
 }
 
-.BookCard:hover .bookdetails-text,
-.wishlist-book-card:hover .bookdetails-text {
-    opacity: 1;
+.BookCard:hover .bookcard-container img,
+.BookCard:hover .bookcard-fallback,
+.wishlist-book-card:hover .bookcard-container img {
+    transform: translateY(-4px);
+}
+
+.bookcard-fallback {
+    background: linear-gradient(160deg, #7c3aed, #4c1d95);
+    color: white;
+    font-family: var(--display);
+    font-size: 1.15rem;
+    line-height: 1.25;
+    padding: 24px 16px;
+    box-sizing: border-box;
+}
+
+.bookdetails-text {
+    padding: 10px 2px 0;
+}
+
+.bookdetails-text p {
+    margin: 0;
+}
+
+.bookCard-Name {
+    color: #1c1917;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+.bookCard-Author {
+    color: #78716c;
+    font-family: var(--serif);
+    font-size: 0.84rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bookCard-Genre {
+    display: none;
 }

@@ -37,3 +37,61 @@ blockquote,
 article {
     font-family: var(--serif);
 }
+
+.page-shell {
+    width: min(1100px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 12px 0 60px;
+}
+
+.page-heading {
+    font-family: var(--display);
+    font-size: 2.7rem;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+    margin: 0 0 6px;
+    color: #111827;
+}
+
+.page-sub {
+    margin: 0 0 28px;
+    color: #6b7280;
+    font-family: var(--sans);
+    font-size: 0.98rem;
+}
+
+.empty-card {
+    background: white;
+    border-radius: 18px;
+    padding: 48px 32px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.empty-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.4rem;
+}
+
+.empty-card .empty-icon {
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+}
+
+.empty-cta {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 999px;
+    background: #7c3aed;
+    color: white;
+    font-family: var(--sans);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.empty-cta:hover {
+    background: #6d28d9;
+}

@@ -3,48 +3,55 @@
 }
 
 .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 400;
     width: 100%;
     padding: 12px 40px;
-    background: transparent;
+    background: #f6f3ee;
 }
 
 .navbar nav {
     max-width: 1300px;
     margin: 0 auto;
-
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    min-height: 52px;
 }
 
 .nav-left {
-    justify-self: start;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .navbar-logo {
     height: 45px;
     width: auto;
+    cursor: pointer;
+}
+
+.nav-center,
+.nav-right,
+.navbar-loggedin-pages {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
 }
 
 .nav-center {
-    display: flex;
-    justify-self: center;
-    align-items: center;
-    gap: 70px;
+    flex: 1 1 auto;
+    justify-content: center;
+    gap: 24px;
 }
 
 .nav-right {
-    display: flex;
-    justify-self: end;
-    align-items: center;
-}
-
-.navbar-loggedin-pages {
-    display: flex;
-    align-items: center;
-    gap: 28px;
+    justify-content: flex-end;
+    margin-left: auto;
 }
 
 .nav-center a,
@@ -53,12 +60,14 @@
     color: #4b4b4b;
     font-size: 1rem;
     font-weight: 600;
-    padding: 12px 22px;
+    padding: 10px 16px;
     border-radius: 999px;
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-.navbar-loggedin-pages a:hover {
+.navbar-loggedin-pages a:hover,
+.nav-center a:hover {
     background: #f5f5f5;
 }
 
@@ -83,4 +92,53 @@
 
 .navbar button:hover {
     background: #000;
+}
+
+@media (max-width: 900px) {
+    .navbar {
+        padding: 10px 16px;
+    }
+
+    .nav-center a,
+    .navbar-loggedin-pages a {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+
+    .navbar button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        padding: 8px 10px;
+    }
+
+    .navbar-logo {
+        height: 36px;
+    }
+
+    .navbar nav {
+        gap: 6px 8px;
+    }
+
+    .nav-center,
+    .nav-right {
+        flex: 1 1 auto;
+        justify-content: flex-start;
+        margin-left: 0;
+    }
+
+    .nav-center a,
+    .navbar-loggedin-pages a {
+        padding: 6px 8px;
+        font-size: 0.82rem;
+    }
+
+    .navbar button {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+    }
 }

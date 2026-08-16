@@ -10,13 +10,16 @@ const booksSchema = {
     { name: "genres", type: "string[]" },
     { name: "description", type: "string" },
     { name: "popularityScore", type: "float" },
+    { name: "coverImage", type: "string", optional: true, index: false },
   ]
 };
 
 export const createBooksCollection = async () => {
   const collections = await typesense.collections().retrieve();
   const exists = collections.some((c) => c.name === "books");
-  if (exists) return;
+  if (exists) {
+    await typesense.collections("books").delete();
+  }
   await typesense.collections().create(booksSchema);
 };
 
@@ -32,6 +35,7 @@ export const indexBooks = async () => {
       genres: book.genres,
       description: book.description || "",
       popularityScore: book.popularityScore || 0,
+      coverImage: book.coverImage || "",
     }));
 
   if (documents.length === 0) {

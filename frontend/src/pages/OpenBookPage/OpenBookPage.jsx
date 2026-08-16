@@ -1,772 +1,613 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-// import ownedbooks from "./../../data/ownedbooks.js"; // NOT USED — data now comes from backend
-import Navbar from "../../Components/Navbar/Navbar.jsx";
 import "./OpenBookPage.css";
 import axios from "axios";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const OpenBookPage = ({ onShowNavBar, ShowNavBar }) => {
+const FONTS = {
+    sans: "Outfit, sans-serif",
+    serif: "Literata, Georgia, serif",
+    clean: "system-ui, Segoe UI, sans-serif",
+};
+
+const THEMES = [
+    { id: "light", label: "Light" },
+    { id: "yellow", label: "Yellow" },
+    { id: "dark", label: "Dark" },
+];
+
+const loadPrefs = () => {
+    try {
+        return JSON.parse(localStorage.getItem("readerPrefs")) || {};
+    } catch {
+        return {};
+    }
+};
+
+const OpenBookPage = ({ onShowNavBar }) => {
     const { BookId } = useParams();
-
-    const API_URL = import.meta.env.VITE_API_URL;
-
-    const [readerNavVisible, setReaderNavVisible] = useState(false);
-
-    // Old local book data — NOT USED anymore
-    // const openbook = ownedbooks.find(book => book.bookId === BookId);
-
-    /*
-    Old local chapter data — NOT USED anymore.
-
-    const [currChapter, setcurrChapter] = useState(openbook.chapters[0]);
-
-    const [currChapterText, setcurrChapterText] = useState(
-        openbook.chapterTexts[currChapter]
-    );
-    */
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
+    const navigate = useNavigate();
+    const optionsRef = useRef(null);
+    const pageRef = useRef(null);
+    const viewportRef = useRef(null);
+    const sentinelRef = useRef(null);
+    const pendingSpread = useRef("start");
+    const prefs = loadPrefs();
 
     const [currChapter, setcurrChapter] = useState(1);
     const [currChapterText, setcurrChapterText] = useState("");
-
+    const [currChapterTitle, setcurrChapterTitle] = useState("");
+    const [loadingChapter, setLoadingChapter] = useState(true);
     const [totalChapters, setTotalChapters] = useState(1);
-
-    const [BookDetails, setBookDetails] = useState({
-        title: "",
-        author: "",
-        totalChapters: 1,
-    });
-
-    const [currFont, setcurrFont] = useState(5);
+    const [toc, setToc] = useState([]);
+    const [BookDetails, setBookDetails] = useState({ title: "", author: "" });
     const [ShowOptions, setShowOptions] = useState(false);
-    const [Mode, setMode] = useState(false);
-    const [PageChangeMode, setPageChangeMode] = useState(0);
-    const [pageIndex, setPageIndex] = useState(0);
+    const [showToc, setShowToc] = useState(false);
+    const [showQA, setShowQA] = useState(false);
+    const [theme, setTheme] = useState(prefs.theme || "light");
+    const [brightness, setBrightness] = useState(prefs.brightness || 100);
+    const [fontKey, setFontKey] = useState(prefs.fontKey || "sans");
+    const [fontSize, setFontSize] = useState(prefs.fontSize || 18);
+    const [layout, setLayout] = useState(prefs.layout || "spread");
+    const [pagesPerSpread, setPagesPerSpread] = useState(2);
+    const [pageStep, setPageStep] = useState(0);
+    const [pageCount, setPageCount] = useState(1);
+    const [spreadIndex, setSpreadIndex] = useState(0);
+    const [spreadCount, setSpreadCount] = useState(1);
+    const [qaQuestion, setQaQuestion] = useState("");
+    const [qaPassage, setQaPassage] = useState("");
+    const [qaAnswer, setQaAnswer] = useState("");
+    const [qaMode, setQaMode] = useState("spoiler-free");
+    const [qaLoading, setQaLoading] = useState(false);
+    const [qaError, setQaError] = useState("");
+    const [askChip, setAskChip] = useState(null);
 
-    /*
-    Old localStorage reading progress — NOT USED anymore.
+    const GoBack = () => navigate(-1);
 
-    const [ReadingProgress, setReadingProgress] = useState(
-        JSON.parse(localStorage.getItem("readingProgress")) || {}
-    );
-    */
-
-    const [ReadingProgress, setReadingProgress] = useState(0);
-
-    // Show only first 10 chapters initially
-    const [ShowAllChapters, setShowAllChapters] = useState(false);
-
-    const navigate = useNavigate();
-    const optionsRef = useRef(null);
-
-    const GoBack = () => {
-        navigate(-1);
+    const savePrefs = (next) => {
+        localStorage.setItem("readerPrefs", JSON.stringify(next));
     };
 
-    const openOptions = () => {
-        setShowOptions(!ShowOptions);
+    const updatePref = (key, value) => {
+        const next = { theme, brightness, fontKey, fontSize, layout, [key]: value };
+        if (key === "theme") setTheme(value);
+        if (key === "brightness") setBrightness(value);
+        if (key === "fontKey") setFontKey(value);
+        if (key === "fontSize") setFontSize(value);
+        if (key === "layout") {
+            setLayout(value);
+            pendingSpread.current = "start";
+            setSpreadIndex(0);
+        }
+        savePrefs(next);
     };
 
-    const askAI = () => { };
-
-    const changePageChangeMode = () => {
-        setPageChangeMode(!PageChangeMode);
+    const applyChapter = (data, fallbackTotal, openAt = pendingSpread.current) => {
+        setcurrChapter(data.order || 1);
+        setcurrChapterText(data.content || "");
+        setcurrChapterTitle(data.title || "");
+        const total = data.totalOrder || fallbackTotal || totalChapters || 1;
+        setTotalChapters(total);
+        const position = openAt === "end" ? "end" : "start";
+        pendingSpread.current = position;
+        setSpreadIndex(position === "end" ? 9999 : 0);
     };
 
-    /*
-    Old local chapter-changing function — NOT USED.
-
-    const changeChapter = (chapter) => {
-        setcurrChapter(chapter);
-
-        const chapterIndex = openbook.chapters.indexOf(chapter);
-
-        const progress = Math.round(
-            (chapterIndex / (openbook.chapters.length - 1)) * 100
-        );
-
-        const newProgress = {
-            ...ReadingProgress,
-            [BookId]: progress
-        };
-
-        setReadingProgress(newProgress);
-
-        localStorage.setItem(
-            "readingProgress",
-            JSON.stringify(newProgress)
-        );
-
-        localStorage.setItem(
-            "lastReadBook",
-            JSON.stringify(BookId)
-        );
-    };
-    */
-
-    /*
-    Backend version.
-
-    The backend expects:
-
-    /library/readBook?bookId=BOOK_ID&order=CHAPTER_ORDER
-
-    It also updates the user's readingOrder in the database.
-    */
-    const changeChapter = async (chapter) => {
+    const changeChapter = async (chapter, openAt = "start") => {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+        pendingSpread.current = openAt === "end" ? "end" : "start";
+        setLoadingChapter(true);
+        setShowToc(false);
+        setAskChip(null);
         try {
-            const token = localStorage.getItem("authToken");
-
-            if (!token) {
-                return;
-            }
-
-            const response = await axios.get(
-                `${API_URL}/library/readBook`,
-                {
-                    params: {
-                        bookId: BookId,
-                        order: chapter
-                    },
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            console.log(response.data);
-
-            setcurrChapter(response.data.order);
-            setcurrChapterText(response.data.content || "");
-
-            if (response.data.totalOrder) {
-                setTotalChapters(response.data.totalOrder);
-            }
-
-            const currentOrder = response.data.order;
-
-            const totalOrder =
-                response.data.totalOrder ||
-                totalChapters ||
-                BookDetails.totalChapters ||
-                1;
-
-            const progress = Math.round(
-                (currentOrder / totalOrder) * 100
-            );
-
-            setReadingProgress(progress);
-
-            setPageIndex(0);
-
+            const response = await axios.get(`${API_URL}/library/readBook`, {
+                params: { bookId: BookId, order: chapter },
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            applyChapter(response.data, toc.length, pendingSpread.current);
         } catch (err) {
-            console.log(
-                err.response?.data || err.message
-            );
+            console.log(err.response?.data || err.message);
+        } finally {
+            setLoadingChapter(false);
         }
     };
 
-    const changeMode = () => {
-        setMode(!Mode);
-    };
+    const measurePages = (attempt = 0) => {
+        const pass = typeof attempt === "number" ? attempt : 0;
+        const flow = pageRef.current;
+        const viewport = viewportRef.current;
+        const sentinel = sentinelRef.current;
+        if (layout !== "spread" || !flow || !viewport || loadingChapter) return;
 
-    const [readingMode, setReadingMode] = useState("scroll");
+        const wide = window.innerWidth >= 720;
+        const pages = wide ? 2 : 1;
+        const pageW = wide
+            ? Math.min(430, Math.floor((window.innerWidth - 128) / 2))
+            : Math.min(520, window.innerWidth - 72);
+        const pageH = Math.min(800, Math.max(360, window.innerHeight - 128));
 
-    const toggleReadingMode = () => {
-        setReadingMode((prev) =>
-            prev === "scroll" ? "flip" : "scroll"
+        viewport.style.width = `${pageW * pages}px`;
+        viewport.style.height = `${pageH}px`;
+        flow.style.height = `${pageH}px`;
+        flow.style.columnWidth = `${pageW}px`;
+        flow.style.columnGap = "0px";
+        void flow.offsetWidth;
+
+        const step = pageW;
+        const cols = Math.max(
+            1,
+            sentinel && step
+                ? Math.round(sentinel.offsetLeft / step) + 1
+                : 1
         );
 
-        setPageIndex(0);
+        const spreads = Math.max(1, Math.ceil(cols / pages));
+        const target = pendingSpread.current;
+        setPagesPerSpread(pages);
+        setPageStep(step);
+        setPageCount(cols);
+        setSpreadCount(spreads);
+        setSpreadIndex((current) => {
+            if (target === "end") {
+                if (spreads <= 1 && pass < 6) return current;
+                return Math.max(0, spreads - 1);
+            }
+            if (target === "start") return 0;
+            return Math.min(current, Math.max(0, spreads - 1));
+        });
+
+        const needsRetry =
+            Boolean(target) &&
+            pass < 8 &&
+            (pass < 2 || (target === "end" && spreads <= 1));
+        if (needsRetry) {
+            requestAnimationFrame(() => measurePages(pass + 1));
+            return;
+        }
+        pendingSpread.current = null;
     };
 
-    const chapterPages = currChapterText
-        ? currChapterText
-            .split(/\s+/)
-            .reduce((pages, word, index) => {
-                const pageIndexForWord = Math.floor(index / 120);
+    const atStart = layout === "scroll"
+        ? currChapter <= 1
+        : currChapter <= 1 && spreadIndex <= 0;
+    const atEnd = layout === "scroll"
+        ? currChapter >= totalChapters
+        : currChapter >= totalChapters && spreadIndex >= spreadCount - 1;
 
-                if (!pages[pageIndexForWord]) {
-                    pages[pageIndexForWord] = [];
-                }
-
-                pages[pageIndexForWord].push(word);
-
-                return pages;
-            }, [])
-            .map((pageWords) => pageWords.join(" "))
-        : [""];
-
-    const currentPageText =
-        chapterPages[pageIndex] || "";
-
-    const goToPreviousPage = () => {
-        setPageIndex((prev) =>
-            Math.max(prev - 1, 0)
-        );
+    const goNext = () => {
+        if (layout === "scroll") {
+            if (currChapter < totalChapters) changeChapter(currChapter + 1, "start");
+            return;
+        }
+        if (spreadIndex < spreadCount - 1) {
+            setSpreadIndex(spreadIndex + 1);
+            return;
+        }
+        if (currChapter < totalChapters) {
+            changeChapter(currChapter + 1, "start");
+        }
     };
 
-    const goToNextPage = () => {
-        setPageIndex((prev) =>
-            Math.min(
-                prev + 1,
-                chapterPages.length - 1
-            )
-        );
+    const goPrev = () => {
+        if (layout === "scroll") {
+            if (currChapter > 1) changeChapter(currChapter - 1, "end");
+            return;
+        }
+        if (spreadIndex > 0) {
+            setSpreadIndex(spreadIndex - 1);
+            return;
+        }
+        if (currChapter > 1) {
+            changeChapter(currChapter - 1, "end");
+        }
     };
 
-    const increaseFont = () => {
-        if (currFont == 10) return;
-
-        setcurrFont(currFont + 1);
+    const submitQuestion = async (e) => {
+        e?.preventDefault?.();
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            setQaError("Log in to ask questions about this book.");
+            return;
+        }
+        if (!qaQuestion.trim()) {
+            setQaError("Type a question first.");
+            return;
+        }
+        setQaLoading(true);
+        setQaError("");
+        setQaAnswer("");
+        try {
+            const response = await axios.post(
+                `${API_URL}/qa`,
+                {
+                    bookId: BookId,
+                    question: qaQuestion.trim(),
+                    mode: qaMode,
+                    order: currChapter,
+                    passage: qaPassage || qaQuestion.match(/["“”]([\s\S]{8,})["“”]/)?.[1]?.trim() || "",
+                },
+                { headers: { Authorization: `Bearer ${token}` }, timeout: 120000 }
+            );
+            setQaAnswer(response.data.answer || "");
+        } catch (err) {
+            setQaError(err.response?.data?.message || "Could not get an answer.");
+        } finally {
+            setQaLoading(false);
+        }
     };
 
-    const decreaseFont = () => {
-        if (currFont == 0) return;
-
-        setcurrFont(currFont - 1);
+    const openAskFromSelection = () => {
+        if (!askChip?.text) return;
+        setQaQuestion(`What does this mean: "${askChip.text}"`);
+        setQaPassage(askChip.text);
+        setQaAnswer("");
+        setQaError("");
+        setShowQA(true);
+        setShowOptions(false);
+        setShowToc(false);
+        setAskChip(null);
+        window.getSelection()?.removeAllRanges();
     };
 
-    /*
-    Get book details and total chapter count from backend.
+    const handleTextSelect = () => {
+        const sel = window.getSelection();
+        const text = sel?.toString().trim();
+        if (!text || text.length < 2 || !pageRef.current?.contains(sel.anchorNode)) {
+            setAskChip(null);
+            return;
+        }
+        const rect = sel.getRangeAt(0).getBoundingClientRect();
+        setAskChip({
+            text,
+            x: Math.min(window.innerWidth - 80, Math.max(80, rect.left + rect.width / 2)),
+            y: Math.max(56, rect.top - 10),
+        });
+    };
 
-    /api/book/:BookId returns:
-    - title
-    - author
-    - totalChapters
-    - etc.
-    */
+    const chapterParagraphs = (currChapterText || "")
+        .split(/\n{2,}|\n/)
+        .map((para) => para.trim())
+        .filter(Boolean);
+
+    const currentTitle =
+        currChapterTitle ||
+        toc.find((item) => item.order === currChapter)?.title ||
+        "";
+    const chapterProgress = layout === "spread" && spreadCount
+        ? (spreadIndex + 1) / spreadCount
+        : 1;
+    const progress = totalChapters
+        ? Math.round(((currChapter - 1 + chapterProgress) / totalChapters) * 100)
+        : 0;
+    const leftPage = spreadIndex * pagesPerSpread + 1;
+    const rightPage = Math.min(leftPage + pagesPerSpread - 1, pageCount);
+
+    const chapterBody = (
+        <>
+            {currentTitle && <h1 className="page-title">{currentTitle}</h1>}
+            {loadingChapter ? (
+                <p className="reader-status">Loading</p>
+            ) : chapterParagraphs.length > 0 ? (
+                chapterParagraphs.map((para, index) => (
+                    <p key={index} className="reader-copy">{para}</p>
+                ))
+            ) : (
+                <p className="reader-status">No text in this section.</p>
+            )}
+        </>
+    );
+
     useEffect(() => {
-        const getBookAndChapterDetails = async () => {
+        const load = async () => {
             try {
-                const token =
-                    localStorage.getItem("authToken");
-
-                /*
-                First get the book details.
-
-                This gives us totalChapters even when
-                the readBook endpoint only returns one
-                chapter.
-                */
-                const bookResponse = await axios.get(
-                    `${API_URL}/book/${BookId}`,
-                    {
-                        headers: token
-                            ? {
-                                Authorization: `Bearer ${token}`
-                            }
-                            : {}
-                    }
-                );
-
-                console.log(
-                    "Book details:",
-                    bookResponse.data
-                );
-
-                const bookTotalChapters =
-                    bookResponse.data.totalChapters || 1;
-
+                setLoadingChapter(true);
+                const token = localStorage.getItem("authToken");
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
+                const [bookResponse, tocResponse] = await Promise.all([
+                    axios.get(`${API_URL}/book/${BookId}`, { headers }),
+                    axios.get(`${API_URL}/library/chapters`, { params: { bookId: BookId }, headers }),
+                ]);
                 setBookDetails({
                     title: bookResponse.data.title || "",
                     author: bookResponse.data.author || "",
-                    totalChapters: bookTotalChapters
                 });
+                const chapters = tocResponse.data.chapters || [];
+                setToc(chapters);
+                setTotalChapters(tocResponse.data.totalOrder || chapters.length || 1);
 
-                setTotalChapters(bookTotalChapters);
-
-                /*
-                Now get the user's current chapter.
-
-                If the book is already being read,
-                the backend uses the saved currentOrder.
-
-                If the book hasn't been started yet,
-                the backend returns 404 because currentOrder
-                is 0. In that case we request Chapter 1.
-                */
                 let response;
-
                 try {
-                    response = await axios.get(
-                        `${API_URL}/library/readBook`,
-                        {
-                            params: {
-                                bookId: BookId
-                            },
-                            headers: {
-                                Authorization: `Bearer ${token}`
-                            }
-                        }
-                    );
-
+                    response = await axios.get(`${API_URL}/library/readBook`, {
+                        params: { bookId: BookId },
+                        headers,
+                    });
                 } catch (err) {
-                    if (err.response?.status !== 404) {
-                        throw err;
-                    }
-
-                    response = await axios.get(
-                        `${API_URL}/library/readBook`,
-                        {
-                            params: {
-                                bookId: BookId,
-                                order: 1
-                            },
-                            headers: {
-                                Authorization: `Bearer ${token}`
-                            }
-                        }
-                    );
+                    if (err.response?.status !== 404) throw err;
+                    response = await axios.get(`${API_URL}/library/readBook`, {
+                        params: { bookId: BookId, order: 1 },
+                        headers,
+                    });
                 }
-
-                console.log(
-                    "Current chapter:",
-                    response.data
-                );
-
-                setcurrChapter(
-                    response.data.order || 1
-                );
-
-                setcurrChapterText(
-                    response.data.content || ""
-                );
-
-                /*
-                readBook with an order does not currently
-                return totalOrder, so use the value from
-                the book endpoint if necessary.
-                */
-                const backendTotal =
-                    response.data.totalOrder ||
-                    bookTotalChapters;
-
-                setTotalChapters(backendTotal);
-
-                const currentOrder =
-                    response.data.order || 1;
-
-                const progress = Math.round(
-                    (currentOrder / backendTotal) * 100
-                );
-
-                setReadingProgress(progress);
-
-                setPageIndex(0);
-
-                // Reset chapter list to collapsed
-                setShowAllChapters(false);
-
+                applyChapter(response.data, chapters.length);
             } catch (err) {
-                console.log(
-                    err.response?.data || err.message
-                );
+                console.log(err.response?.data || err.message);
+            } finally {
+                setLoadingChapter(false);
             }
         };
-
-        getBookAndChapterDetails();
-    }, [BookId]);
-
-    /*
-    Old local chapter text effect — NOT USED.
-
-    useEffect(() => {
-        const nextText =
-            openbook.chapterTexts[currChapter] || "";
-
-        setcurrChapterText(nextText);
-        setPageIndex(0);
-    }, [currChapter]);
-    */
-
-    /*
-    Old localStorage progress effect — NOT USED.
-
-    useEffect(() => {
-        const progress =
-            JSON.parse(
-                localStorage.getItem("readingProgress")
-            ) || {};
-
-        setReadingProgress(progress);
-    }, []);
-    */
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (
-                optionsRef.current &&
-                !optionsRef.current.contains(event.target)
-            ) {
-                setShowOptions(false);
-            }
-        };
-
-        document.addEventListener(
-            "mousedown",
-            handleClickOutside
-        );
-
-        return () => {
-            document.removeEventListener(
-                "mousedown",
-                handleClickOutside
-            );
-        };
-    }, []);
+        load();
+    }, [BookId, API_URL]);
 
     useEffect(() => {
         onShowNavBar(false);
-        setReaderNavVisible(false);
+        return () => onShowNavBar(true);
+    }, [onShowNavBar]);
 
+    useLayoutEffect(() => {
+        if (layout === "scroll") {
+            const page = pageRef.current;
+            if (!page || loadingChapter) return;
+            if (pendingSpread.current === "end") {
+                page.scrollTop = page.scrollHeight;
+            } else if (pendingSpread.current === "start") {
+                page.scrollTop = 0;
+            }
+            pendingSpread.current = null;
+            return;
+        }
+        if (loadingChapter) return;
+        measurePages(0);
+        const onResize = () => measurePages(0);
+        window.addEventListener("resize", onResize);
         return () => {
-            onShowNavBar(true);
+            window.removeEventListener("resize", onResize);
         };
+    }, [layout, currChapterText, fontSize, fontKey, theme, loadingChapter]);
+
+    useEffect(() => {
+        const onKey = (event) => {
+            if (event.key === "ArrowRight") {
+                event.preventDefault();
+                goNext();
+            }
+            if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                goPrev();
+            }
+            if (event.key === "Escape") {
+                setShowToc(false);
+                setShowQA(false);
+                setShowOptions(false);
+                setAskChip(null);
+            }
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    });
+
+    useEffect(() => {
+        const close = (event) => {
+            if (optionsRef.current && !optionsRef.current.contains(event.target)) {
+                setShowOptions(false);
+            }
+        };
+        document.addEventListener("mousedown", close);
+        return () => document.removeEventListener("mousedown", close);
     }, []);
 
-    /*
-    Old localStorage progress:
-
-    const currentProgress =
-        ReadingProgress[BookId] || 0;
-
-    Now ReadingProgress itself is the percentage
-    calculated from backend readingOrder.
-    */
-    const currentProgress = ReadingProgress || 0;
-
-    const toggleReaderNav = () => {
-        setReaderNavVisible((prev) => !prev);
-    };
-
-    /*
-    The backend provides totalChapters through the
-    Book endpoint.
-
-    We create the chapter numbers from 1 -> totalChapters.
-
-    Only the first 10 are shown initially.
-    */
-    const chapters = Array.from(
-        { length: totalChapters },
-        (_, index) => index + 1
-    );
-
-    const visibleChapters = ShowAllChapters
-        ? chapters
-        : chapters.slice(0, 10);
-
     return (
-        <>
-            {readerNavVisible && (
-                <div
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        zIndex: 200
-                    }}
-                >
-                    <Navbar
-                        ShowAuth={() => { }}
-                        LoggedIn={true}
-                    />
+        <div className={`open-book-page theme-${theme} layout-${layout}`}>
+            <header className="reader-bar">
+                <button type="button" className="bar-icon" onClick={GoBack} aria-label="Back">
+                    <FaChevronLeft />
+                </button>
+                <div className="bar-meta">
+                    <p>{BookDetails.title}</p>
+                    <span>{BookDetails.author}</span>
+                </div>
+                <div className="bar-actions">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setShowOptions(false);
+                            setShowToc(false);
+                            setShowQA((v) => !v);
+                        }}
+                    >
+                        Ask
+                    </button>
+                    <div className="options-wrap" ref={optionsRef}>
+                    <button type="button" onClick={() => { setShowQA(false); setShowToc(false); setShowOptions((v) => !v); }}>
+                        Options
+                    </button>
+                    {ShowOptions && (
+                        <div className="options-panel">
+                            <p className="opt-label">Layout</p>
+                            <div className="opt-pills">
+                                <button type="button" className={layout === "spread" ? "is-on" : ""} onClick={() => updatePref("layout", "spread")}>2 pages</button>
+                                <button type="button" className={layout === "scroll" ? "is-on" : ""} onClick={() => updatePref("layout", "scroll")}>Scroll</button>
+                            </div>
+                            <p className="opt-label">Page colour</p>
+                            <div className="opt-pills">
+                                {THEMES.map((item) => (
+                                    <button
+                                        key={item.id}
+                                        type="button"
+                                        className={theme === item.id ? "is-on" : ""}
+                                        onClick={() => updatePref("theme", item.id)}
+                                    >
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="opt-label">Brightness</p>
+                            <input
+                                type="range"
+                                min="70"
+                                max="130"
+                                value={brightness}
+                                onChange={(e) => updatePref("brightness", Number(e.target.value))}
+                            />
+                            <p className="opt-label">Font</p>
+                            <div className="opt-pills">
+                                <button type="button" className={fontKey === "sans" ? "is-on" : ""} onClick={() => updatePref("fontKey", "sans")}>Sans</button>
+                                <button type="button" className={fontKey === "serif" ? "is-on" : ""} onClick={() => updatePref("fontKey", "serif")}>Serif</button>
+                                <button type="button" className={fontKey === "clean" ? "is-on" : ""} onClick={() => updatePref("fontKey", "clean")}>Clean</button>
+                            </div>
+                            <p className="opt-label">Size</p>
+                            <div className="opt-size">
+                                <button type="button" onClick={() => fontSize > 14 && updatePref("fontSize", fontSize - 1)}>A−</button>
+                                <span>{fontSize}</span>
+                                <button type="button" onClick={() => fontSize < 28 && updatePref("fontSize", fontSize + 1)}>A+</button>
+                            </div>
+                        </div>
+                    )}
+                    </div>
+                </div>
+            </header>
+
+            <button
+                type="button"
+                className="toc-tab"
+                onClick={() => { setShowToc(true); setShowOptions(false); setShowQA(false); }}
+            >
+                Contents
+            </button>
+
+            {showToc && (
+                <div className="popup-scrim" onClick={() => setShowToc(false)}>
+                    <aside className="chapter-popup" onClick={(e) => e.stopPropagation()}>
+                        <p className="side-label">Contents</p>
+                        <h2>{BookDetails.title}</h2>
+                        <div className="chapter-popup-list">
+                            {toc.map((chapter) => (
+                                <button
+                                    type="button"
+                                    key={chapter.order}
+                                    className={currChapter === chapter.order ? "is-on" : ""}
+                                    onClick={() => changeChapter(chapter.order)}
+                                >
+                                    {chapter.title}
+                                </button>
+                            ))}
+                        </div>
+                    </aside>
                 </div>
             )}
 
-            <div
-                className={`open-book-page ${Mode ? "dark-mode" : ""
-                    }`}
-            >
-
-                {/* Header */}
-
-                <div className="book-header">
-
-                    {/* Back */}
-
-                    <button
-                        className="back-button"
-                        onClick={GoBack}
-                    >
-                        {"﹤"}
-                    </button>
-
-
-                    {/* Title */}
-
-                    <div className="book-heading">
-                        <p className="book-title">
-                            {BookDetails.title}
-                        </p>
+            {showQA && (
+                <form className="qa-panel" onSubmit={submitQuestion}>
+                    <div className="qa-head">
+                        <p>Ask AI</p>
                     </div>
-
-
-                    {/* Author */}
-
-                    <div className="header-info">
-                        <p className="book-author">
-                            {BookDetails.author}
-                        </p>
-                    </div>
-
-
-                    {/* Ask AI + Options */}
-
-                    <div className="header-right">
-
+                    <div className="qa-modes">
                         <button
-                            className="askAI-button"
-                            onClick={askAI}
+                            type="button"
+                            className={qaMode === "spoiler-free" ? "is-on" : ""}
+                            onClick={() => setQaMode("spoiler-free")}
                         >
-                            Ask AI
+                            Spoiler-free
                         </button>
-
-                        <div
-                            className="reader-options-wrapper"
-                            ref={optionsRef}
+                        <button
+                            type="button"
+                            className={qaMode === "spoilers" ? "is-on" : ""}
+                            onClick={() => setQaMode("spoilers")}
                         >
-                            <button
-                                className="options-button"
-                                onClick={openOptions}
-                            >
-                                ⋮
-                            </button>
-
-                            {ShowOptions && (
-                                <div className="reader-options-menu">
-                                    <button
-                                        type="button"
-                                        className="reader-option-row"
-                                        onClick={
-                                            toggleReadingMode
-                                        }
-                                    >
-                                        <span className="reader-option-label">
-                                            Page change style:
-                                        </span>
-
-                                        <span>
-                                            {readingMode}
-                                        </span>
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-
+                            With spoilers
+                        </button>
                     </div>
+                    <textarea
+                        value={qaQuestion}
+                        onChange={(e) => {
+                            setQaQuestion(e.target.value);
+                            if (qaPassage && !e.target.value.includes(qaPassage.slice(0, 24))) {
+                                setQaPassage("");
+                            }
+                        }}
+                        placeholder="Ask a question about this book"
+                        rows={4}
+                    />
+                    <div className="qa-actions">
+                        <button className="qa-go" type="submit" disabled={qaLoading}>{qaLoading ? "…" : "Ask"}</button>
+                        <button type="button" className="qa-close" onClick={() => setShowQA(false)}>Close</button>
+                    </div>
+                    {qaError && <p className="qa-error">{qaError}</p>}
+                    {qaAnswer && <p className="qa-answer">{qaAnswer}</p>}
+                </form>
+            )}
 
+            {askChip && (
+                <button
+                    type="button"
+                    className="ask-chip"
+                    style={{ left: askChip.x, top: askChip.y }}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={openAskFromSelection}
+                >
+                    Ask AI
+                </button>
+            )}
 
-                    {/* Navbar button ABOVE title */}
-
-                    <button
-                        className="navbar-button"
-                        onClick={toggleReaderNav}
+            <main className="reader-canvas">
+                {layout === "scroll" ? (
+                    <article
+                        ref={pageRef}
+                        className="reader-scroll"
+                        style={{
+                            fontFamily: FONTS[fontKey],
+                            fontSize: `${fontSize}px`,
+                            "--bright": brightness / 100,
+                        }}
+                        onMouseUp={handleTextSelect}
                     >
-                        ☰
-                    </button>
-
-                </div>
-
-
-                {/* Main reading section */}
-
-                <div className="reading-section">
-
-                    {/* Left section */}
-
-                    <div className="chapter-section">
-
-                        {/* Progress */}
-
-                        <div className="reading-progress">
-
-                            <p className="progress-label">
-                                Progress
-                            </p>
-
-                            <div className="progress-track">
-                                <div
-                                    className="progress-bar"
-                                    style={{
-                                        width: `${currentProgress}%`
-                                    }}
-                                ></div>
-                            </div>
-
-                            <p className="progress-percentage">
-                                {currentProgress}%
-                            </p>
-
-                        </div>
-
-
-                        {/* Chapter list */}
-
-                        <p className="chapter-list-title">
-                            Chapter List
-                        </p>
-
-                        <div className="chapter-list">
-
-                            {visibleChapters.map(
-                                (chapter) => (
-                                    <p
-                                        key={chapter}
-                                        onClick={() =>
-                                            changeChapter(
-                                                chapter
-                                            )
-                                        }
-                                        className={
-                                            currChapter ===
-                                                chapter
-                                                ? "active-chapter"
-                                                : ""
-                                        }
-                                    >
-                                        Chapter {chapter}
-                                    </p>
-                                )
-                            )}
-
-                            {chapters.length > 10 && (
-                                <button
-                                    type="button"
-                                    className="chapter-list-toggle"
-                                    onClick={() =>
-                                        setShowAllChapters(!ShowAllChapters)
-                                    }
-                                >
-                                    {ShowAllChapters ? "Show Less" : "Show More"}
-                                </button>
-                            )}
-
-                        </div>
-
-                    </div>
-
-
-                    {/* Current chapter */}
-
+                        {chapterBody}
+                    </article>
+                ) : (
                     <div
-                        className={`open-chapter ${readingMode === "page turn"
-                                ? "page-turn-mode"
-                                : ""
-                            }`}
+                        ref={viewportRef}
+                        className={`reader-viewport pages-${pagesPerSpread}`}
+                        style={{ "--bright": brightness / 100 }}
                     >
-
-                        <p className="current-chapter">
-                            Chapter {currChapter}
-                        </p>
-
-                        {readingMode === "flip" ? (
-                            <div className="page-turn-reader">
-
-                                <div className="page-turn-panel">
-                                    <p
-                                        className="chapter-text page-turn-text"
-                                        style={{
-                                            fontSize: `${12 +
-                                                currFont
-                                                }px`
-                                        }}
-                                    >
-                                        {currentPageText}
-                                    </p>
-                                </div>
-
-                                <div className="page-turn-controls">
-
-                                    <button
-                                        type="button"
-                                        className="page-turn-arrow"
-                                        onClick={
-                                            goToPreviousPage
-                                        }
-                                        disabled={
-                                            pageIndex === 0
-                                        }
-                                    >
-                                        ◀
-                                    </button>
-
-                                    <span className="page-turn-indicator">
-                                        {pageIndex + 1} /{" "}
-                                        {chapterPages.length}
-                                    </span>
-
-                                    <button
-                                        type="button"
-                                        className="page-turn-arrow"
-                                        onClick={
-                                            goToNextPage
-                                        }
-                                        disabled={
-                                            pageIndex >=
-                                            chapterPages.length -
-                                            1
-                                        }
-                                    >
-                                        ▶
-                                    </button>
-
-                                </div>
-
-                            </div>
-
-                        ) : (
-
-                            <p
-                                className="chapter-text"
-                                style={{
-                                    fontSize: `${12 + currFont
-                                        }px`
-                                }}
-                            >
-                                {currChapterText}
-                            </p>
-
-                        )}
-
-                    </div>
-
-                </div>
-
-
-                {/* Bottom controls */}
-
-                <div className="reading-controls">
-
-                    <button
-                        className="mode-button"
-                        onClick={changeMode}
-                    >
-                        {Mode ? "☾" : "☼"}
-                    </button>
-
-                    <div className="font-controls">
-
-                        <button
-                            onClick={decreaseFont}
+                        <article
+                            ref={pageRef}
+                            className="reader-flow"
+                            style={{
+                                fontFamily: FONTS[fontKey],
+                                fontSize: `${fontSize}px`,
+                                transform: pageStep
+                                    ? `translate3d(${-spreadIndex * pagesPerSpread * pageStep}px, 0, 0)`
+                                    : undefined,
+                            }}
+                            onMouseUp={handleTextSelect}
                         >
-                            A−
-                        </button>
-
-                        <button
-                            onClick={increaseFont}
-                        >
-                            A+
-                        </button>
-
+                            {chapterBody}
+                            <span ref={sentinelRef} className="page-sentinel" aria-hidden="true" />
+                        </article>
                     </div>
+                )}
+            </main>
 
+            <footer className="reader-bar bottom">
+                <button type="button" className="bar-icon" onClick={goPrev} disabled={atStart} aria-label="Previous">
+                    <FaChevronLeft />
+                </button>
+                <div className="bar-progress">
+                    <div className="bar-track">
+                        <div className="bar-fill" style={{ width: `${progress}%` }} />
+                    </div>
+                    <span>
+                        {progress}% · {layout === "spread"
+                            ? (pagesPerSpread === 2 && rightPage > leftPage ? `${leftPage}–${rightPage}` : `${leftPage}`)
+                            : `${currChapter} / ${totalChapters}`}
+                    </span>
                 </div>
-
-            </div>
-        </>
+                <button type="button" className="bar-icon" onClick={goNext} disabled={atEnd} aria-label="Next">
+                    <FaChevronRight />
+                </button>
+            </footer>
+        </div>
     );
 };
 

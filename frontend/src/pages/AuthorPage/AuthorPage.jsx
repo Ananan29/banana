@@ -25,8 +25,7 @@ const AuthorPage = () => {
     }, [AuthorId])
 
     return (
-        <div>AuthorPage
-            <div className="author-page">
+        <div className="author-page">
             <div className="author-container">
                 <button className="back-button" onClick={()=>navigate(-1)}>{"﹤"}</button>
                 <div className="author-left">
@@ -74,7 +73,6 @@ const AuthorPage = () => {
                 }
                 </div>
             </div>  
-        </div>
         </div>
     )
 }

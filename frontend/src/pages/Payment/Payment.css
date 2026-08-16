@@ -118,6 +118,20 @@
   gap: 12px;
 }
 
+.payment-note {
+  margin: 0 0 16px;
+  color: #6b7280;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.payment-form .cart-payment-button {
+  width: 100%;
+  min-width: 0;
+  margin: 8px 0 0;
+}
+
 .payment-cancel {
   margin-top: 12px;
   background: transparent;

@@ -54,12 +54,15 @@ export const getfav=async(req,res,next)=>{
                     }
                 });   
     
-        const result =books.map(book=>({
-            title:book.bookId.title,
-            bookId:book.bookId._id,
-            author:book.bookId.authorId.name,
-            coverImage:book.bookId.coverImage,
-        }));
+        const result =books.flatMap((book)=>{
+            if (!book.bookId?.authorId?.name) return [];
+            return [{
+                title:book.bookId.title,
+                bookId:book.bookId._id,
+                author:book.bookId.authorId.name,
+                coverImage:book.bookId.coverImage,
+            }];
+        });
 
         return res.status(200).json(result); 
     }

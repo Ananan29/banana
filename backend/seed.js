@@ -3,12 +3,17 @@ import mongoose from "mongoose";
 import Author from "./src/models/author.js";
 import Series from "./src/models/series.js";
 import Book from "./src/models/book.js";
-import { authorsData, seriesData, booksData } from "./seedData/catalog.js";
+import { authorsData as baseAuthors, seriesData as baseSeries, booksData as baseBooks } from "./seedData/catalog.js";
+import { extraAuthorsData, extraSeriesData, extraBooksData } from "./seedData/extraCatalog.js";
+
+const authorsData = [...baseAuthors, ...extraAuthorsData];
+const seriesData = [...baseSeries, ...extraSeriesData];
+const booksData = [...baseBooks, ...extraBooksData];
 
 const seed = async () => {
   try {
-    if (booksData.length !== 100) {
-      throw new Error(`Expected booksData.length === 100, got ${booksData.length}`);
+    if (booksData.length !== 150) {
+      throw new Error(`Expected booksData.length === 150, got ${booksData.length}`);
     }
 
     if (!process.env.MONGO_URI) {

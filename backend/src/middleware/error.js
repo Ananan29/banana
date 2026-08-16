@@ -29,7 +29,9 @@ const errorMiddleware = (err, req, res, next) => {
 
   if (statusCode >= 500) {
     console.error(err);
-    message = "Something went wrong";
+    if (!err.isOperational) {
+      message = "Something went wrong";
+    }
   }
 
   res.status(statusCode).json({

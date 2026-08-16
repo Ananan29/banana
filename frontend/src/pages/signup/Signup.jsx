@@ -89,8 +89,11 @@ const Signup = ({ ShowAuth, setLoggedIn }) => {
                         password: password
                     }
                 );
-                ShowLoginClicked();
-                console.log("first");
+                const token = response.data.token;
+                localStorage.setItem("authToken", token);
+                setLoggedIn(true);
+                ShowAuth();
+                window.location.reload();
             } catch (err) {
                 console.log(err.response?.data?.message);
                 setErrors(prev => ({ ...prev, submit: err.response?.data?.message||err.message }))

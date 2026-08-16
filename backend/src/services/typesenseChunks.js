@@ -76,18 +76,59 @@ export const syncChapterChunksToTypesense = async () => {
   console.log(`Typesense synced ${count} book chunks`);
 };
 
+const STOP = new Set([
+  "what", "who", "whom", "whose", "this", "that", "does", "mean", "about",
+  "from", "with", "have", "been", "they", "them", "were", "when", "where",
+  "which", "would", "could", "should", "chapter", "book", "explain",
+]);
+
+const extraSearchTerms = (question) => {
+  const terms = [];
+  for (const raw of question.match(/[A-Za-z][A-Za-z']{2,}/g) || []) {
+    const word = raw.replace(/'s$/i, "");
+    if (STOP.has(word.toLowerCase())) continue;
+    const isName =
+      word[0] === word[0].toUpperCase() &&
+      word.slice(1) === word.slice(1).toLowerCase();
+    if (!isName) continue;
+    if (!terms.some((t) => t.toLowerCase() === word.toLowerCase())) {
+      terms.push(word);
+    }
+  }
+  return terms.slice(0, 3);
+};
+
 export const searchAllowedChunks = async ({ bookId, question, maxOrder }) => {
   const filterBy =
     maxOrder == null
       ? `bookId:=${bookId}`
       : `bookId:=${bookId} && order:<=${maxOrder}`;
 
-  const results = await typesense.collections(COLLECTION).documents().search({
-    q: question,
-    query_by: "text",
-    filter_by: filterBy,
-    per_page: 8,
-  });
+  const queries = [question, ...extraSearchTerms(question)];
+  const seen = new Set();
+  const chunks = [];
 
-  return (results.hits || []).map((hit) => hit.document);
+  for (const q of queries) {
+    const query = q.trim().slice(0, 80);
+    if (!query) continue;
+    try {
+      const results = await typesense.collections(COLLECTION).documents().search({
+        q: query,
+        query_by: "text",
+        filter_by: filterBy,
+        per_page: 4,
+      });
+
+      for (const hit of results.hits || []) {
+        const id = hit.document?.id;
+        if (!id || seen.has(id)) continue;
+        seen.add(id);
+        chunks.push(hit.document);
+      }
+    } catch (error) {
+      console.error("Typesense chunk search failed:", error.message);
+    }
+  }
+
+  return chunks.slice(0, 4);
 };

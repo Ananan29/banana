@@ -13,12 +13,8 @@ const PaymentPage = ({ LoggedIn }) => {
     const [items, setItems] = useState(cart?.books || []);
     const [total, setTotal] = useState(cart?.total || 0);
     const [loading, setLoading] = useState(false);
-    const [name, setName] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
-const [card, setCard] = useState("");
-const [expiry, setExpiry] = useState("");
-const [cvv, setCvv] = useState("");
 
     // Load cart if it wasn't passed through navigation
     useEffect(() => {
@@ -82,6 +78,21 @@ const [cvv, setCvv] = useState("");
     //     loadRazorpay();
     // }, []);
 
+    const loadRazorpay = () => {
+        return new Promise((resolve) => {
+            if (window.Razorpay) {
+                resolve(true);
+                return;
+            }
+
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+    };
+
     const handlePay = async (e) => {
     e.preventDefault();
 
@@ -99,17 +110,71 @@ const [cvv, setCvv] = useState("");
     setErrorMsg("");
     setSuccessMsg("");
 
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            setErrorMsg("Please sign in to continue.");
+            setLoading(false);
+            return;
+        }
+
+        const checkout = await axios.post(
+            `${API_URL}/payment/checkout`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        const loaded = await loadRazorpay();
+        if (!loaded) {
+            setErrorMsg("Could not load Razorpay checkout.");
+            setLoading(false);
+            return;
+        }
+
+        const rzp = new window.Razorpay({
+            key: checkout.data.key,
+            amount: checkout.data.amount,
+            currency: checkout.data.currency,
+            order_id: checkout.data.orderId,
+            handler: async (response) => {
+                try {
+                    await axios.post(
+                        `${API_URL}/payment/verify`,
+                        {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                        },
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            }
+                        }
+                    );
+                    setSuccessMsg("Payment verified. Unlocking books shortly.");
+                    setTimeout(() => {
+                        navigate("/library");
+                    }, 1000);
+                } catch (err) {
+                    setErrorMsg(err.response?.data?.message || "Payment verification failed.");
+                } finally {
+                    setLoading(false);
+                }
+            },
+            modal: {
+                ondismiss: () => setLoading(false),
+            },
+        });
+
+        rzp.open();
+    } catch (err) {
+        setErrorMsg(err.response?.data?.message || "Checkout failed.");
         setLoading(false);
-        setSuccessMsg("Payment successful!");
-
-        localStorage.removeItem("BooksInCart");
-
-        setTimeout(() => {
-            navigate("/library");
-        }, 1000);
-    }, 1000);
+    }
 };
 
     return (
@@ -152,7 +217,7 @@ const [cvv, setCvv] = useState("");
                                     </div>
 
                                     <div className="payment-item-price">
-                                        ₹{item.bookPrice}
+                                        ₹{item.price}
                                     </div>
                                 </div>
                             ))
@@ -165,89 +230,36 @@ const [cvv, setCvv] = useState("");
                     </div>
 
                     {/* PAYMENT FORM */}
-                   <form
-    className="payment-form"
-    onSubmit={handlePay}
->
-    <h3>Payment Details</h3>
+                    <form className="payment-form" onSubmit={handlePay}>
+                        <h3>Pay with Razorpay</h3>
+                        <p className="payment-note">
+                            Card details are collected securely in Razorpay checkout. This does not unlock books until the payment is confirmed.
+                        </p>
 
-    <label>
-        Cardholder name
-        <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter cardholder name"
-            required
-        />
-    </label>
+                        {errorMsg && (
+                            <div className="payment-error">{errorMsg}</div>
+                        )}
 
-    <label>
-        Card number
-        <input
-            type="text"
-            value={card}
-            onChange={(e) => setCard(e.target.value)}
-            placeholder="1234 5678 9012 3456"
-            maxLength="19"
-            required
-        />
-    </label>
+                        {successMsg && (
+                            <div className="payment-success">{successMsg}</div>
+                        )}
 
-    <div className="payment-row">
-        <label>
-            Expiry
-            <input
-                type="text"
-                value={expiry}
-                onChange={(e) => setExpiry(e.target.value)}
-                placeholder="MM/YY"
-                maxLength="5"
-                required
-            />
-        </label>
+                        <button
+                            className="cart-payment-button"
+                            type="submit"
+                            disabled={loading || items.length === 0}
+                        >
+                            {loading ? "Processing..." : `Pay ₹${total}`}
+                        </button>
 
-        <label>
-            CVV
-            <input
-                type="text"
-                value={cvv}
-                onChange={(e) => setCvv(e.target.value)}
-                placeholder="123"
-                maxLength="3"
-                required
-            />
-        </label>
-    </div>
-
-    {errorMsg && (
-        <div className="payment-error">
-            {errorMsg}
-        </div>
-    )}
-
-    {successMsg && (
-        <div className="payment-success">
-            {successMsg}
-        </div>
-    )}
-
-    <button
-        className="cart-payment-button"
-        type="submit"
-        disabled={loading || items.length === 0}
-    >
-        {loading ? "Processing..." : `Pay ₹${total}`}
-    </button>
-
-    <button
-        type="button"
-        className="payment-cancel"
-        onClick={() => navigate(-1)}
-    >
-        Cancel
-    </button>
-</form>
+                        <button
+                            type="button"
+                            className="payment-cancel"
+                            onClick={() => navigate(-1)}
+                        >
+                            Cancel
+                        </button>
+                    </form>
 
                 </div>
             </div>

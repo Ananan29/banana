@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
-import SeriesDetails from "./../../data/series.js";
-import BookDetails from "./../../data/books.js";
 import "./SeriesPage.css";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 const SeriesPage = () => {
     const { SeriesId } = useParams();
-    const location = useLocation();
     const navigate = useNavigate();
 
     const [Series, setSeries] = useState({
@@ -45,8 +42,7 @@ const SeriesPage = () => {
         // navigate(`/author/${Series.authorId}`);
     }
     return (
-        <div>SeriesPage
-            <div className="series-page">
+        <div className="series-page">
                 <div className="series-container">
 
                     <button className="back-button" onClick={GoBack}>{"﹤"}</button>
@@ -81,7 +77,7 @@ const SeriesPage = () => {
 
                                     <div>
                                         <h4>
-                                            #{book.seriesBookNumber} {book.title}
+                                            {book.title}
                                         </h4>
 
                                         {/* <p>{book.totalChapters} Chapters</p> */}
@@ -96,7 +92,6 @@ const SeriesPage = () => {
 
                 </div>
             </div>
-        </div>
     )
 }
 

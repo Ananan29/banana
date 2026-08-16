@@ -291,8 +291,28 @@
     margin-top: 28px;
 }
 
-.genres p {
-    overflow-wrap: anywhere;
+.genre-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.genre-chip {
+    border: 1px solid #e5e7eb;
+    background: #fafafa;
+    color: #374151;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.genre-chip:hover {
+    background: #f5f3ff;
+    border-color: #7c3aed;
+    color: #6d28d9;
 }
 
 /* =========================

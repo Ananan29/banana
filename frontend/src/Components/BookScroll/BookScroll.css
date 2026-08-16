@@ -1,15 +1,50 @@
 .book-scroll-section {
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 30px;
+    margin-bottom: 38px;
+}
+
+.book-scroll-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 72px 2px;
 }
 
 .discover-page-book-scroll-title {
     margin: 0;
-    padding: 0 70px 12px;
+    padding: 0;
+    font-family: var(--display);
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: -0.4px;
+    color: #1c1917;
+    text-transform: capitalize;
+}
 
-    font-size: 1.25rem;
-    font-weight: 700;
+.book-scroll-see-all {
+    border: none;
+    background: transparent;
+    color: #7c3aed;
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.book-scroll-see-all:hover {
+    color: #5b21b6;
+}
+
+.discover-page-book-scroll-title.is-link {
+    cursor: pointer;
+    width: fit-content;
+}
+
+.discover-page-book-scroll-title.is-link:hover {
+    color: #6d28d9;
 }
 
 /* =========================
@@ -29,33 +64,26 @@
 
     width: 100%;
 
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: hidden;
 
-    padding: 20px 70px;
+    padding: 18px 56px 8px;
 
     box-sizing: border-box;
 
-    scroll-behavior: smooth;
-
-    /*
-       Allows normal vertical page scrolling
-       while still allowing horizontal dragging.
-    */
-    touch-action: pan-x pan-y;
-
-    overscroll-behavior-x: contain;
-
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.books-scroll-cards::-webkit-scrollbar {
-    display: none;
+    touch-action: pan-y;
+    user-select: none;
 }
 
 .books-scroll-cards > * {
     flex: 0 0 auto;
+}
+
+.book-card.placeholder {
+    width: 180px;
+    height: 270px;
+    border-radius: 14px;
+    background: #e7e5e4;
 }
 
 /* =========================
@@ -64,11 +92,11 @@
 
 .scroll-btn {
     position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
 
-    top: 20px;
-    bottom: 20px;
-
-    width: 70px;
+    width: 44px;
+    height: 44px;
 
     display: flex;
     align-items: center;
@@ -76,71 +104,48 @@
 
     border: none;
     outline: none;
+    border-radius: 50%;
 
     cursor: pointer;
 
-    color: white;
-    font-size: 2rem;
+    color: #111827;
+    background: white;
+    font-size: 1.1rem;
 
-    opacity: 0;
-
-    transition:
-        opacity 0.25s ease,
-        background 0.25s ease;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+    opacity: 1;
 
     z-index: 10;
 }
 
-
 .scroll-btn svg {
     transform: scale(0.9);
-
     transition: transform 0.2s ease;
 }
 
 .scroll-btn:hover svg {
-    transform: scale(1.3);
+    transform: scale(1.15);
 }
 
 .scroll-btn:disabled {
     cursor: default;
-    opacity: 0.4;
+    opacity: 0.35;
 }
 
 .scroll-btn.left {
-    left: 0;
-
-    background: linear-gradient(
-        to right,
-        rgba(20, 20, 20, 0.9),
-        rgba(20, 20, 20, 0)
-    );
+    left: 12px;
+    background: white;
 }
 
 .scroll-btn.right {
-    right: 0;
-
-    background: linear-gradient(
-        to left,
-        rgba(20, 20, 20, 0.9),
-        rgba(20, 20, 20, 0)
-    );
+    right: 12px;
+    background: white;
 }
 
-.scroll-btn.left:hover {
-    background: linear-gradient(
-        to right,
-        rgba(20, 20, 20, 1),
-        rgba(20, 20, 20, 0)
-    );
-}
-
+.scroll-btn.left:hover,
 .scroll-btn.right:hover {
-    background: linear-gradient(
-        to left,
-        rgba(20, 20, 20, 1),
-        rgba(20, 20, 20, 0)
-    );
+    background: #f5f3ff;
+    color: #6d28d9;
 }
 
 /* =========================
@@ -148,126 +153,78 @@
 ========================= */
 
 @media (max-width: 900px) {
-    .discover-page-book-scroll-title {
+    .book-scroll-header {
         padding-left: 40px;
         padding-right: 40px;
+    }
 
-        font-size: 1.15rem;
+    .discover-page-book-scroll-title {
+        font-size: 1.45rem;
     }
 
     .books-scroll-cards {
         gap: 16px;
-
         padding-left: 40px;
         padding-right: 40px;
     }
 
     .scroll-btn {
-        width: 55px;
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
     }
 }
-
-/* =========================
-   MOBILE
-========================= */
 
 @media (max-width: 600px) {
     .book-scroll-section {
         margin-bottom: 25px;
     }
 
-    .discover-page-book-scroll-title {
-        padding: 0 20px 10px;
+    .book-scroll-header {
+        padding: 0 20px 4px;
+    }
 
-        font-size: 1.05rem;
+    .discover-page-book-scroll-title {
+        font-size: 1.3rem;
     }
 
     .books-scroll-cards {
         gap: 14px;
-
-        padding: 15px 20px;
-
-        /*
-           Makes the first/last card easier to see
-           while swiping.
-        */
+        padding: 15px 56px 4px;
         scroll-padding-left: 20px;
         scroll-padding-right: 20px;
     }
 
     .scroll-btn {
-        display: none;
+        display: flex;
+        width: 36px;
+        height: 36px;
+        opacity: 1;
+        font-size: 0.95rem;
+    }
+
+    .scroll-btn.left {
+        left: 8px;
+    }
+
+    .scroll-btn.right {
+        right: 8px;
     }
 }
 
-/* =========================
-   SMALL PHONES
-========================= */
-
 @media (max-width: 400px) {
-    .discover-page-book-scroll-title {
+    .book-scroll-header {
         padding-left: 15px;
         padding-right: 15px;
+    }
 
-        font-size: 1rem;
+    .discover-page-book-scroll-title {
+        font-size: 1.2rem;
     }
 
     .books-scroll-cards {
         gap: 12px;
-
-        padding-left: 15px;
-        padding-right: 15px;
-
-        scroll-padding-left: 15px;
-        scroll-padding-right: 15px;
-    }
-}
-@media (max-width: 600px) {
-    .book-scroll-section {
-        margin-bottom: 25px;
-    }
-
-    .discover-page-book-scroll-title {
-        padding: 0 20px 10px;
-        font-size: 1.05rem;
-    }
-
-    .books-scroll-cards {
-        gap: 14px;
-
-        padding: 15px 20px;
-
-        scroll-padding-left: 20px;
-        scroll-padding-right: 20px;
-    }
-
-    /* Always show arrows on phone */
-    .scroll-btn {
-        display: flex;
-
-        width: 45px;
-
-        top: 15px;
-        bottom: 15px;
-
-        opacity: 0.75;
-
-        font-size: 1.25rem;
-    }
-
-    .scroll-btn:hover {
-        opacity: 1;
-    }
-
-    .scroll-btn.left {
-        left: 0;
-    }
-
-    .scroll-btn.right {
-        right: 0;
-    }
-}@media (min-width: 601px) {
-    .books-section:hover .scroll-btn {
-        opacity: 1;
+        padding-left: 48px;
+        padding-right: 48px;
     }
 }

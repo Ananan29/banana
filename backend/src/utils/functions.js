@@ -4,6 +4,7 @@ import FavouriteBook from '../models/favourite.js';
 import Book from '../models/book.js';
 import Author from '../models/author.js';
 import Series from '../models/series.js';
+import Chapter from '../models/chapter.js';
 import { getRandomGenres } from './extraFunctions.js';
 
 export const getExcludedIds=async (userId)=>{
@@ -20,7 +21,36 @@ export const getExcludedIds=async (userId)=>{
     return excludedIds;
 };
 
-export const getTopRated=async(limit,start,excludedIds)=>{
+export const getBookReadingLength = async (bookId) => {
+    const count = await Chapter.countDocuments({ bookId });
+    if (count > 0) return count;
+    const book = await Book.findById(bookId).select("totalChapters");
+    return Math.max(book?.totalChapters || 1, 1);
+};
+
+export const listReadingOrder = async (bookId) => {
+    const chapters = await Chapter.find({ bookId })
+        .sort({ order: 1 })
+        .select("order title chapterNo -_id")
+        .lean();
+    return chapters.map((chapter) => ({
+        order: chapter.order,
+        title: chapter.title,
+        chapterNo: chapter.chapterNo,
+    }));
+};
+
+const toBookCard = (book) => {
+    if (!book?.authorId?.name) return [];
+    return [{
+        bookId: book._id,
+        title: book.title,
+        author: book.authorId.name,
+        coverImage: book.coverImage,
+    }];
+};
+
+export const getTopRated=async(limit,start,excludedIds=[])=>{
     const books= await Book.find({
         _id:{$nin: excludedIds}
     })
@@ -30,15 +60,10 @@ export const getTopRated=async(limit,start,excludedIds)=>{
         .populate("authorId","name")
         .select("title authorId coverImage");
 
-    return books.map(book => ({
-        bookId: book._id,
-        title: book.title,
-        author: book.authorId.name,
-        coverImage: book.coverImage
-    }));
+    return books.flatMap(toBookCard);
 };
 
-export const getRecentlyAdded=async (limit,start,excludedIds)=>{
+export const getRecentlyAdded=async (limit,start,excludedIds=[])=>{
     const books= await Book.find({
         _id:{$nin: excludedIds}
     })
@@ -48,15 +73,10 @@ export const getRecentlyAdded=async (limit,start,excludedIds)=>{
         .populate("authorId","name")
         .select("title authorId coverImage");
     
-    return books.map(book => ({
-        bookId: book._id,
-        title: book.title,
-        author: book.authorId.name,
-        coverImage: book.coverImage
-    }));
+    return books.flatMap(toBookCard);
 };
 
-export const getRecentlyPublished=async (limit,start,excludedIds)=>{
+export const getRecentlyPublished=async (limit,start,excludedIds=[])=>{
     const books= await Book.find({
         _id:{$nin: excludedIds}
     })
@@ -66,15 +86,10 @@ export const getRecentlyPublished=async (limit,start,excludedIds)=>{
         .populate("authorId","name")
         .select("title authorId coverImage");
 
-    return books.map(book => ({
-        bookId: book._id,
-        title: book.title,
-        author: book.authorId.name,
-        coverImage: book.coverImage
-    }));
+    return books.flatMap(toBookCard);
 };
 
-export const getGenreBooks = async (limit, start, excludedIds,genre) => {
+export const getGenreBooks = async (limit, start, excludedIds=[],genre) => {
     const books = await Book.find({
         genres: genre,
         _id: { $nin: excludedIds }
@@ -85,20 +100,18 @@ export const getGenreBooks = async (limit, start, excludedIds,genre) => {
         .populate("authorId", "name")
         .select("title authorId coverImage");
 
-    return books.map(book => ({
-        bookId: book._id,
-        title: book.title,
-        author: book.authorId.name,
-        coverImage: book.coverImage
-    }));
+    return books.flatMap(toBookCard);
 
 };
 
 export const getUserBooks= async (limit,start,userId,status) => {
-    const books= await OwnedBook.find({
-        userId,
-        status,
-    })
+    const query = { userId };
+    if (status && status !== "all") {
+        query.status = status;
+    }
+
+    const books= await OwnedBook.find(query)
+        .sort({ updatedAt: -1 })
         .skip(start)
         .limit(limit)
         .populate({
@@ -110,13 +123,15 @@ export const getUserBooks= async (limit,start,userId,status) => {
             }
         });
     
-    return books.map((book)=>{
-        return{
+    return books.flatMap((book)=>{
+        if (!book.bookId) return [];
+        return [{
             bookId: book.bookId._id,
             title:book.bookId.title,
-            author:book.bookId.authorId.name,
+            author:book.bookId.authorId?.name,
             coverImage: book.bookId.coverImage,
-        }
+            status: book.status,
+        }];
     })
 };
 
@@ -131,6 +146,7 @@ export const getRecommendedBooks=async(limit,start,excludedIds,userId)=>{
 
     //weights
     for(const book of ownedBooks){
+        if (!book.bookId) continue;
         let weight;
 
         if (book.status === "owned") {
@@ -141,7 +157,7 @@ export const getRecommendedBooks=async(limit,start,excludedIds,userId)=>{
             weight = 8;}
 
             
-        for (const genre of book.bookId.genres) {
+        for (const genre of book.bookId.genres || []) {
             genreWeights[genre] =(genreWeights[genre] || 0)+ weight;
         }
     
@@ -153,7 +169,8 @@ export const getRecommendedBooks=async(limit,start,excludedIds,userId)=>{
     }
 
     for(const book of favouriteBooks){
-        for (const genre of book.bookId.genres) {
+        if (!book.bookId) continue;
+        for (const genre of book.bookId.genres || []) {
             genreWeights[genre] =(genreWeights[genre] || 0)+ 3;
         }
     
@@ -171,8 +188,9 @@ export const getRecommendedBooks=async(limit,start,excludedIds,userId)=>{
     const result=[];
        
     for(const book of books){
+        if (!book.authorId?._id) continue;
         let totalscore=0;
-        for(const genre of book.genres){
+        for(const genre of book.genres || []){
             totalscore+=genreWeights[genre]||0;
         }
 
@@ -187,12 +205,7 @@ export const getRecommendedBooks=async(limit,start,excludedIds,userId)=>{
     }
 
     result.sort((a, b) => b.score - a.score);
-    const recommendedBooks = result.slice(start, start + limit).map(item => ({
-        bookId:item.book._id,
-        title: item.book.title,
-        author: item.book.authorId.name,
-        coverImage: item.book.coverImage
-    }));
+    const recommendedBooks = result.slice(start, start + limit).flatMap((item) => toBookCard(item.book));
     
     const topGenres = Object.keys(genreWeights)
     .sort((a, b) => genreWeights[b] - genreWeights[a])

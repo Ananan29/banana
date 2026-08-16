@@ -52,13 +52,18 @@ useEffect(() => {
         if (!token) {
           return;
         }
-        const response = await axios.get(`${API_URL}/cart/`, {
+        const response = await axios.get(`${API_URL}/library/`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        console.log(response.data);
-        setcart(response.data.books.length);
+        const sections = Array.isArray(response.data) ? response.data : [];
+        const countBooks = (title) => {
+          const section = sections.find((item) => item.title === title);
+          if (!section?.books) return 0;
+          return Array.isArray(section.books) ? section.books.length : 1;
+        };
+        setcart(countBooks("owned") + countBooks("Continue-Reading") + countBooks("completed"));
         const response2 = await axios.get(`${API_URL}/wishlist/`, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -118,10 +123,6 @@ useEffect(() => {
                 <div className="profile-row">
                   <span>Email</span>
                   <p>{UserData.email}</p>
-                </div>
-                <div className="profile-row">
-                  <span>Status</span>
-                  <p>Active</p>
                 </div>
               </section>
 
